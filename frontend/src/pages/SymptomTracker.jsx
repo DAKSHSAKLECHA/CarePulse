@@ -37,39 +37,56 @@ export default function SymptomTracker() {
 
   const fetchSymptoms = async (pid) => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`https://CarePulse.onrender.com/api/symptoms/patient/${pid}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setEntries(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`/api/symptoms/patient/${pid}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setEntries(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.mood || !formData.symptoms) return alert("Mood and symptoms required");
+    const getAISuggestion = async (mood, symptoms) => {
+      try {
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        if (!apiKey) return moodData[mood]?.suggestion || "Take care of yourself!";
 
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.post(`https://CarePulse.onrender.com/api/symptoms/add`, 
-        { ...formData, patient: patientId }, 
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      const newEntry = {
-        ...res.data,
-        moodSuggestion: moodData[formData.mood]?.suggestion,
-        moodVideo: moodData[formData.mood]?.video
-      };
-      setEntries([newEntry, ...entries]);
-      setFormData({ ...formData, symptoms: "", notes: "" }); // Reset text fields
-      alert("Entry logged!");
-    } catch (err) {
-      console.error(err);
-    }
-  };
+        const prompt = `Patient mood: ${mood}. Symptoms: ${symptoms}. Give a short 1-2 sentence health tip or suggestion. Be empathetic and practical.`;
+        const response = await axios.post(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+          { contents: [{ parts: [{ text: prompt }] }] }
+        );
+        return response.data?.candidates?.[0]?.content?.parts?.[0]?.text || moodData[mood]?.suggestion;
+      } catch {
+        return moodData[mood]?.suggestion || "Take care of yourself!";
+      }
+    };
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (!formData.mood || !formData.symptoms) return alert("Mood and symptoms required");
+
+      try {
+        const token = localStorage.getItem("token");
+        const aiSuggestion = await getAISuggestion(formData.mood, formData.symptoms);
+        const res = await axios.post(`/api/symptoms/add`, 
+          { ...formData, patient: patientId }, 
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        const newEntry = {
+          ...res.data,
+          moodSuggestion: aiSuggestion,
+          moodVideo: moodData[formData.mood]?.video
+        };
+        setEntries([newEntry, ...entries]);
+        setFormData({ ...formData, symptoms: "", notes: "" });
+        alert("Entry logged!");
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 pt-24">

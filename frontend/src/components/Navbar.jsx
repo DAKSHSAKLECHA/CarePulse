@@ -1,4 +1,3 @@
-// components/Navbar.jsx
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,6 +6,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [role, setRole] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,23 +17,50 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    setIsAuthenticated(!!localStorage.getItem("token"));
+    const token = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role");
+    setIsAuthenticated(!!token);
+    setRole(storedRole);
   }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    localStorage.removeItem("patientId");
     setIsAuthenticated(false);
+    setRole(null);
     navigate("/login");
   };
 
-  const navLinks = [
+  const patientLinks = [
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
     { name: "Activities", path: "/activities" },
     { name: "Symptoms", path: "/symptom" },
     { name: "Documents", path: "/docUpload" },
+    { name: "My Appointments", path: "/my-appointments" },
   ];
+
+  const doctorLinks = [
+    { name: "Home", path: "/" },
+    { name: "Dashboard", path: "/doctor/dashboard" },
+    { name: "Services", path: "/services" },
+  ];
+
+  const publicLinks = [
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+    { name: "Activities", path: "/activities" },
+  ];
+
+  const navLinks = !isAuthenticated
+    ? publicLinks
+    : role === "doctor"
+    ? doctorLinks
+    : patientLinks;
+
+  const accentColor = role === "doctor" ? "indigo" : "teal";
 
   return (
     <nav
@@ -53,19 +80,36 @@ export default function Navbar() {
             </span>
           </Link>
 
+          {/* Role badge */}
+          {isAuthenticated && role && (
+            <span className={`hidden md:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
+              role === "doctor"
+                ? "bg-indigo-100 text-indigo-700"
+                : "bg-teal-100 text-teal-700"
+            }`}>
+              {role === "doctor" ? "👨‍⚕️ Doctor" : "🧑‍⚕️ Patient"}
+            </span>
+          )}
+
           {/* Desktop Links */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
-                className="text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors relative group"
+                className={`text-sm font-medium text-slate-600 transition-colors relative group ${
+                  accentColor === "indigo"
+                    ? "hover:text-indigo-600"
+                    : "hover:text-teal-600"
+                }`}
               >
                 {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-500 transition-all group-hover:w-full"></span>
+                <span className={`absolute -bottom-1 left-0 w-0 h-0.5 transition-all group-hover:w-full ${
+                  accentColor === "indigo" ? "bg-indigo-500" : "bg-teal-500"
+                }`}></span>
               </Link>
             ))}
-            
+
             {isAuthenticated ? (
               <button
                 onClick={handleLogout}
@@ -102,12 +146,25 @@ export default function Navbar() {
             className="md:hidden bg-white border-t"
           >
             <div className="flex flex-col p-4 space-y-4">
+              {isAuthenticated && role && (
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold w-fit ${
+                  role === "doctor"
+                    ? "bg-indigo-100 text-indigo-700"
+                    : "bg-teal-100 text-teal-700"
+                }`}>
+                  {role === "doctor" ? "👨‍⚕️ Doctor" : "🧑‍⚕️ Patient"}
+                </span>
+              )}
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   to={link.path}
                   onClick={() => setIsOpen(false)}
-                  className="text-slate-600 hover:text-teal-600 font-medium"
+                  className={`font-medium ${
+                    accentColor === "indigo"
+                      ? "text-slate-600 hover:text-indigo-600"
+                      : "text-slate-600 hover:text-teal-600"
+                  }`}
                 >
                   {link.name}
                 </Link>

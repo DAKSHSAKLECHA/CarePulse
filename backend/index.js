@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import path from "path";
 
 // DB Connection
 import connectDB from "./config/db.js";
@@ -9,27 +8,25 @@ import connectDB from "./config/db.js";
 // Routes
 import symptomRoutes from "./routes/symptomRoutes.js";
 import PatientRoute from './routes/PatientRoute.js';
+import DoctorRoute from './routes/DoctorRoute.js';
 import prescriptionRoutes from './routes/prescriptionRoutes.js';
+import AppointmentRoute from './routes/AppointmentRoute.js';
 
 dotenv.config();
 connectDB();
 
 const app = express();
-const _dirname = path.resolve();
 
 // Middleware
 app.use(express.json());
-
-// ✅ FIX: Allow Frontend to communicate with Backend
-app.use(cors({
-    origin: "http://localhost:5173", // Allow your Vite Frontend
-    credentials: true
-}));
+app.use(cors({ credentials: true }));
 
 // API Routes
 app.use("/api/symptoms", symptomRoutes);
 app.use('/api/auth', PatientRoute);
+app.use('/api/doctor', DoctorRoute);
 app.use('/api/storage', prescriptionRoutes);
+app.use('/api/appointments', AppointmentRoute);
 
 // Server Port
 const PORT = process.env.PORT || 5000;
