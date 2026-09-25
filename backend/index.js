@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import path from "path";
+import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
 import symptomRoutes from "./routes/symptomRoutes.js";
@@ -13,7 +15,10 @@ import AppointmentRoute from "./routes/AppointmentRoute.js";
 // import claudeRoute from "./routes/claudeRoute.js";
 import aiRoutes from "./routes/aiRoutes.js";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 connectDB();
 
 const app = express();

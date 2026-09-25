@@ -4,7 +4,7 @@ import Appointment from "../models/Appointment.js";
 // Create
 export const createSymptom = async (req, res) => {
   try {
-    const { date, mood, symptoms, notes } = req.body;
+    const { date, mood, symptoms, notes, aiSuggestion } = req.body;
 
     const newSymptom = await Symptom.create({
       patient: req.user.id,
@@ -12,6 +12,7 @@ export const createSymptom = async (req, res) => {
       mood,
       symptoms,
       notes,
+      aiSuggestion: aiSuggestion || null,
     });
 
     res.status(201).json(newSymptom);
@@ -62,16 +63,21 @@ export const updateSymptom = async (req, res) => {
       return res.status(403).json({ message: "Not authorized" });
     }
 
-    const { date, mood, symptoms, notes } = req.body;
+    const { date, mood, symptoms, notes, aiSuggestion } = req.body;
+
+    // Build a partial update so fields the caller didn't send (e.g. a
+    // follow-up request that only attaches the AI suggestion) don't wipe
+    // out existing values with undefined.
+    const updateFields = {};
+    if (date !== undefined) updateFields.date = date;
+    if (mood !== undefined) updateFields.mood = mood;
+    if (symptoms !== undefined) updateFields.symptoms = symptoms;
+    if (notes !== undefined) updateFields.notes = notes;
+    if (aiSuggestion !== undefined) updateFields.aiSuggestion = aiSuggestion;
 
     const updated = await Symptom.findByIdAndUpdate(
       req.params.id,
-      {
-        date,
-        mood,
-        symptoms,
-        notes,
-      },
+      updateFields,
       {
         new: true,
         runValidators: true,

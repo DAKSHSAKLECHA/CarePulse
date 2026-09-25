@@ -1,10 +1,17 @@
 import fetch from "node-fetch";
 
+// ── Gemini model tiers ────────────────────────────────────────
+// gemini-2.5-flash-lite/-flash were retired for new users, so this now uses
+// the current free-tier lineup (Sep 2026): gemini-3.5-flash / -flash-lite.
+// If Google retires these too, just change the two lines below — nothing
+// else in this file needs to change.
 const MODELS = {
-  fast:    "claude-haiku-4-5-20251001",
-  default: "claude-sonnet-4-6",
-  power:   "claude-opus-4-6",
+  fast:    process.env.GEMINI_MODEL_FAST    || "gemini-3.5-flash-lite",
+  default: process.env.GEMINI_MODEL_DEFAULT || "gemini-3.5-flash",
+  power:   process.env.GEMINI_MODEL_POWER   || "gemini-3.5-flash",
 };
+
+const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
 const SYSTEM_PROMPT =
   "You are a medical AI assistant integrated into CarePulse, a healthcare platform. " +
@@ -26,75 +33,119 @@ function parseAIJson(raw) {
   return JSON.parse(match[0]);
 }
 
-// ── Core helper: calls Anthropic API ─────────────────────────
-async function callClaude(messages, model = MODELS.default, systemPrompt = SYSTEM_PROMPT, maxTokens = 1500) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error("ANTHROPIC_API_KEY not set in .env");
-  }
+// ── Convert Claude-style messages → Gemini "contents" ──────────
+// Accepts messages like [{ role: "user"|"assistant", content: "text" }]
+// or content as an array of Claude-style blocks:
+//   { type: "text", text }
+//   { type: "image", source: { type: "base64", media_type, data } }
+function toGeminiContents(messages) {
+  return messages.map((m) => {
+    const role = m.role === "assistant" ? "model" : "user";
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": process.env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      system: systemPrompt, // ✅ FIXED
-      messages,
-    }),
+    if (typeof m.content === "string") {
+      return { role, parts: [{ text: m.content }] };
+    }
+
+    const parts = (m.content || []).map((block) => {
+      if (block.type === "image") {
+        return {
+          inline_data: {
+            mime_type: block.source.media_type,
+            data: block.source.data,
+          },
+        };
+      }
+      // default: treat as text block
+      return { text: block.text || "" };
+    });
+
+    return { role, parts };
   });
-
-  const data = await response.json();
-
-  if (!response.ok || data.error) {
-    throw new Error(data.error?.message || "Claude API error");
-  }
-
-  const raw = data.content?.[0]?.text || "";
-  return parseAIJson(raw);
 }
 
+function extractGeminiText(data) {
+  const candidate = data?.candidates?.[0];
+  const parts = candidate?.content?.parts || [];
+  return parts.map((p) => p.text || "").join("");
+}
 
-// helper for chat bot
-async function callClaudeText(
-  messages,
-  model = MODELS.fast,
-  systemPrompt = ""
-) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error("ANTHROPIC_API_KEY not set in .env");
+async function callGemini(model, contents, systemPrompt, maxTokens) {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY not set in .env");
+  }
+
+  const body = {
+    contents,
+    generationConfig: {
+      // Give plenty of headroom for the actual JSON answer.
+      maxOutputTokens: maxTokens,
+      // Gemini 3.x models "think" (extra hidden reasoning tokens) by
+      // default. Those hidden tokens are counted against
+      // maxOutputTokens, so with thinking left on the model can burn
+      // through the whole budget before writing any visible text —
+      // the response then comes back with an empty parts array,
+      // which looked like "AI error." / "No JSON found in AI
+      // response" upstream. Turning thinking off guarantees the
+      // budget goes to the actual answer.
+      thinkingConfig: { thinkingBudget: 0 },
+    },
+  };
+
+  if (systemPrompt) {
+    body.system_instruction = { parts: [{ text: systemPrompt }] };
   }
 
   const response = await fetch(
-    "https://api.anthropic.com/v1/messages",
+    `${GEMINI_BASE}/${model}:generateContent`,
     {
       method: "POST",
       headers: {
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        "x-goog-api-key": process.env.GEMINI_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model,
-        max_tokens: 700,
-        system: systemPrompt,
-        messages,
-      }),
+      body: JSON.stringify(body),
     }
   );
 
   const data = await response.json();
 
   if (!response.ok || data.error) {
+    throw new Error(data.error?.message || "Gemini API error");
+  }
+
+  const text = extractGeminiText(data);
+
+  if (!text) {
+    // Surface *why* it came back empty (safety block, hit the token
+    // cap, etc.) instead of a bare "no text" error.
+    const finishReason = data?.candidates?.[0]?.finishReason;
+    const blockReason = data?.promptFeedback?.blockReason;
     throw new Error(
-      data.error?.message || "Claude API error"
+      `Gemini returned no text (finishReason: ${finishReason || "unknown"}${
+        blockReason ? `, blockReason: ${blockReason}` : ""
+      })`
     );
   }
 
-  return data.content?.[0]?.text || "";
+  return text;
+}
+
+// ── Core helper: calls Gemini API, expects JSON back ───────────
+async function callClaude(messages, model = MODELS.default, systemPrompt = SYSTEM_PROMPT, maxTokens = 1500) {
+  const contents = toGeminiContents(messages);
+  const raw = await callGemini(model, contents, systemPrompt, maxTokens);
+  return parseAIJson(raw);
+}
+
+
+// helper for chat bot — returns plain text, not JSON
+async function callClaudeText(
+  messages,
+  model = MODELS.fast,
+  systemPrompt = ""
+) {
+  const contents = toGeminiContents(messages);
+  return await callGemini(model, contents, systemPrompt, 700);
 }
 
 // ─────────────────────────────────────────────────────────────

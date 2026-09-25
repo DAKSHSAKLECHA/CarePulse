@@ -166,8 +166,8 @@ function AISuggestionCard({ suggestion, mood, onClose }) {
 }
 
 // ── Entry Card ────────────────────────────────────────────────
-function EntryCard({ entry, index }) {
-  const [expanded, setExpanded] = useState(false);
+function EntryCard({ entry, index, defaultExpanded = false }) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const md = getMood(entry.mood);
   const hasAI = entry.aiSuggestion;
 
@@ -245,7 +245,7 @@ export default function SymptomTracker() {
   const [patientId,  setPatientId]  = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [aiLoading,  setAiLoading]  = useState(false);
-  const [freshAI,    setFreshAI]    = useState(null);  // AI result for just-submitted entry
+  const [justAddedId, setJustAddedId] = useState(null); // id of the entry to auto-expand in the list after submit
   const [listening,  setListening]  = useState(false); // voice input
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
@@ -298,7 +298,7 @@ export default function SymptomTracker() {
     e.preventDefault();
     if (!formData.mood || !formData.symptoms) return alert("Mood and symptoms are required.");
     setSubmitting(true);
-    setFreshAI(null);
+    setJustAddedId(null);
 
     try {
       const token = localStorage.getItem("token");
@@ -331,15 +331,30 @@ export default function SymptomTracker() {
           shouldSeeDoctor: aiResult.overallRisk === "high",
           doctorReason: aiResult.redFlags?.[0] || null
         };
-        setFreshAI({ suggestion: aiSuggestion, mood: formData.mood });
+
+        // Persist the AI suggestion on the saved entry so it's still
+        // there after a page reload (previously this only lived in
+        // local state and vanished on refresh).
+        try {
+          await axios.put(
+            `/api/symptoms/${res.data._id}`,
+            { aiSuggestion },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        } catch (saveErr) {
+          console.error("Failed to persist AI suggestion:", saveErr);
+        }
       } catch (aiErr) {
         console.error("AI suggestion failed:", aiErr);
       } finally {
         setAiLoading(false);
       }
 
-      // Add to entries list with AI data
+      // Add to entries list with AI data — auto-expand this one so the
+      // AI analysis is visible immediately without a second, duplicate
+      // panel elsewhere on the page.
       setEntries(prev => [{ ...res.data, aiSuggestion }, ...prev]);
+      setJustAddedId(res.data._id);
       setFormData(f => ({ ...f, symptoms: "", notes: "", mood: "" }));
 
     } catch (err) {
@@ -541,17 +556,6 @@ export default function SymptomTracker() {
                 </button>
               </form>
             </motion.div>
-
-            {/* Fresh AI result — shown below form */}
-            <AnimatePresence>
-              {freshAI && (
-                <AISuggestionCard
-                  suggestion={freshAI.suggestion}
-                  mood={freshAI.mood}
-                  onClose={() => setFreshAI(null)}
-                />
-              )}
-            </AnimatePresence>
           </div>
 
           {/* ── Entries ── */}
@@ -576,7 +580,12 @@ export default function SymptomTracker() {
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {entries.map((entry, i) => (
-                  <EntryCard key={entry._id || i} entry={entry} index={i} />
+                  <EntryCard
+                    key={entry._id || i}
+                    entry={entry}
+                    index={i}
+                    defaultExpanded={entry._id === justAddedId}
+                  />
                 ))}
               </div>
             )}
