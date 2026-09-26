@@ -133,3 +133,27 @@ There are two roles — `patient` and `doctor`. Routes are protected by JWT midd
 - Image uploads (prescriptions, documents) go through Cloudinary. Make sure the credentials are correct or the upload routes will fail.
 - Rate limiting is set to 100 requests per 15 minutes per IP.
 
+## Deployment: Railway backend + Vercel frontend
+
+Railway service settings:
+- Root Directory: `/backend`
+- Start Command: `npm start`
+- Build Command: leave unset (no backend compilation required).
+- Set MONGO_URI, JWT_SECRET, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET, and ANTHROPIC_API_KEY as Railway service variables.
+- The root URL returns a simple API status message, not the frontend.
+
+Vercel project settings:
+- Root Directory: `frontend`
+- Framework Preset: Vite
+- Build Command: `npm run build`
+- Output Directory: `dist`
+
+`frontend/vercel.json` forwards `/api/*` to
+`https://carepulse-production-5648.up.railway.app/api/*` and serves React page
+routes through `index.html`. Existing relative API calls work without a frontend
+API environment variable or browser cross-origin requests. If the Railway domain
+changes, update the rewrite destination and redeploy Vercel.
+
+Keep database and API secrets on Railway, never in Vercel frontend variables.
+Commit and push the changes, then deploy each service from its directory.
