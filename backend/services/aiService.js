@@ -77,17 +77,9 @@ async function callGemini(model, contents, systemPrompt, maxTokens) {
   const body = {
     contents,
     generationConfig: {
-      // Give plenty of headroom for the actual JSON answer.
-      maxOutputTokens: maxTokens,
-      // Gemini 3.x models "think" (extra hidden reasoning tokens) by
-      // default. Those hidden tokens are counted against
-      // maxOutputTokens, so with thinking left on the model can burn
-      // through the whole budget before writing any visible text —
-      // the response then comes back with an empty parts array,
-      // which looked like "AI error." / "No JSON found in AI
-      // response" upstream. Turning thinking off guarantees the
-      // budget goes to the actual answer.
-      thinkingConfig: { thinkingBudget: 0 },
+      // Thinking controls differ between Gemini models. Use the model default
+      // and leave room for reasoning as well as the visible response.
+      maxOutputTokens: Math.max(maxTokens, 8192),
     },
   };
 

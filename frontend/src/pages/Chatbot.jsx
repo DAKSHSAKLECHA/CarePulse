@@ -135,7 +135,7 @@ export default function Chatbot() {
     } catch (err) {
       console.error("Chatbot error:", err);
       const errorMsg = err.message?.includes("API key") || err.message?.includes("401")
-        ? "⚠️ Invalid API key. Check ANTHROPIC_API_KEY in your backend .env file."
+        ? "⚠️ The AI service is temporarily unavailable. Please try again later."
         : err.message?.includes("fetch") || err.message?.includes("network")
         ? "⚠️ Cannot reach backend. Make sure your Express server is running."
         : `⚠️ Error: ${err.message}`;
