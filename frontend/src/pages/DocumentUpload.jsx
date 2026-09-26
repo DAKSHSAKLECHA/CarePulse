@@ -14,6 +14,7 @@ export default function DocumentUpload() {
   const [documentName, setDocumentName] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [fetchError, setFetchError] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -22,11 +23,23 @@ export default function DocumentUpload() {
   }, [navigate]);
 
   const fetchPrescriptions = async () => {
+    setFetching(true);
+    setFetchError("");
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${API_URL}/`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get(API_URL, { headers: { Authorization: `Bearer ${token}` } });
+      if (!Array.isArray(res.data) || res.data.some(doc =>
+        !doc || typeof doc !== "object" || typeof doc._id !== "string" ||
+        typeof doc.documentName !== "string" || typeof doc.prescriptionUrl !== "string"
+      )) {
+        throw new Error("Invalid document response");
+      }
       setPrescriptions(res.data);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      setFetchError(e.response?.status === 401
+        ? "Your session has expired. Please log in again."
+        : "Unable to load your documents. Please try again.");
+    }
     finally { setFetching(false); }
   };
 
@@ -148,6 +161,11 @@ export default function DocumentUpload() {
 
         {fetching ? (
           <div style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>Loading...</div>
+        ) : fetchError ? (
+          <div role="alert" style={{ background: "white", borderRadius: 16, padding: "1.5rem", border: "1px solid #fecaca", color: "#991b1b" }}>
+            <p>{fetchError}</p>
+            <button type="button" onClick={fetchPrescriptions}>Retry</button>
+          </div>
         ) : prescriptions.length === 0 ? (
           <div style={{ background: "white", borderRadius: 20, padding: "3.5rem", textAlign: "center", border: "2px dashed #e2e8f0", color: "#94a3b8" }}>
             <div style={{ fontSize: "2.5rem", marginBottom: 10 }}>📂</div>
