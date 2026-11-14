@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://carepulse-production-5648.up.railway.app/api/:path*"
+      "destination": "https://carepulse-backend-ob7x.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
