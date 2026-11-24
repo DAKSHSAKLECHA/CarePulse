@@ -54,7 +54,7 @@ export default function AuthPage() {
   const navigate = useNavigate();
 
   const isDoctor = role === "doctor";
-  const accent = isDoctor ? "#4f46e5" : "#0a7e6e";
+  const accent = "#0a7367";
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -134,8 +134,8 @@ export default function AuthPage() {
         {/* Role Switcher */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", background: "white", borderRadius: 16, padding: 5, boxShadow: "none", border: "1px solid #e8edf2", marginBottom: 20 }}>
           {[
-            { key: "patient", label: "Patient", icon: UserRound, accent: "#0a7e6e" },
-            { key: "doctor",  label: "Doctor",  icon: Stethoscope, accent: "#4f46e5" },
+            { key: "patient", label: "Patient", icon: UserRound, accent: "#0a7367" },
+            { key: "doctor",  label: "Doctor",  icon: Stethoscope, accent: "#0a7367" },
           ].map((r) => (
             <button key={r.key} disabled={submitting} onClick={() => handleRoleSwitch(r.key)}
               style={{ padding: "12px 16px", borderRadius: 12, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 700, fontSize: "0.9rem", transition: "all 0.25s ease", background: role === r.key ? r.accent : "transparent", color: role === r.key ? "white" : "#64748b", boxShadow: role === r.key ? `0 4px 14px ${r.accent}30` : "none", fontFamily: "'Segoe UI', Arial, sans-serif" }}>
@@ -152,7 +152,7 @@ export default function AuthPage() {
 
             {/* Header */}
             <div style={{ marginBottom: "1.8rem" }}>
-              <div style={{ width: 48, height: 48, borderRadius: 14, background: isDoctor ? "rgba(79,70,229,0.08)" : "rgba(10,126,110,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", marginBottom: 14, border: `1px solid ${accent}18` }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(10,115,103,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", marginBottom: 14, border: `1px solid ${accent}18` }}>
                 {isDoctor ? <Stethoscope size={24} color={accent}/> : <UserRound size={24} color={accent}/>}
               </div>
               <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#0d1b2a", letterSpacing: "-0.02em", margin: 0 }}>
