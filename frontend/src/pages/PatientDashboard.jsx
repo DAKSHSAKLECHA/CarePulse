@@ -22,7 +22,7 @@ export default function PatientDashboard(){
     const controller=new AbortController();
     const options={timeout:15000,headers:{Authorization:"Bearer "+localStorage.getItem("token")},signal:controller.signal};
     const load=async()=>{
-      const requests=[axios.get("/api/appointments/my",options),user.id?axios.get("/api/symptoms/patient/"+user.id,options):Promise.reject(new Error("No patient ID")),axios.get("/api/storage/",options)];
+      const requests=[axios.get("/api/appointments/my",options),user.id?axios.get("/api/symptoms/patient/"+user.id,options):Promise.reject(new Error("No patient ID")),axios.get("/api/storage",options)];
       const results=await Promise.allSettled(requests);
       if(controller.signal.aborted)return;
       [setAppointments,setSymptoms,setDocuments].forEach((save,index)=>{

@@ -182,7 +182,7 @@ export default function PatientRiskPanel({ patients }) {
     setFetchError("");
     try {
 
-      const res = await axios.get("/api/symptoms/", { headers });
+      const res = await axios.get("/api/symptoms", { headers });
 
 
       setAllSymptoms(res.data || []);
