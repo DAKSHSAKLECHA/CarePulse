@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -899,7 +898,6 @@ function AnalyticsTab({ appointments, stats }) {
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────
 export default function DoctorDashboard() {
-  const navigate = useNavigate();
   const user     = JSON.parse(localStorage.getItem("user") || "{}");
   const token    = localStorage.getItem("token");
   const headers  = { Authorization: `Bearer ${token}` };
@@ -958,50 +956,28 @@ export default function DoctorDashboard() {
     <div style={{ minHeight: "100vh", background: "#f7f9fa", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem" }}>
 
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          style={{ background: "#1e1b4b", borderRadius: 12, padding: "2rem 2.5rem", marginBottom: 18, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16, position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: -60, right: -60, width: 240, height: 240, borderRadius: "50%", background: "rgba(99,102,241,0.18)", filter: "blur(60px)", pointerEvents: "none" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 14, position: "relative" }}>
-            <div style={{ width: 50, height: 50, borderRadius: 14, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", flexShrink: 0 }}>👨‍⚕️</div>
-            <div>
-              <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.65rem", letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>Doctor Portal</p>
-              <h1 style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.7rem)", fontWeight: 800, color: "white", margin: "2px 0 0", letterSpacing: "-0.02em" }}>Dr. {user.name || "Doctor"}</h1>
-              {user.specialization && <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.78rem", margin: 0 }}>{user.specialization}{user.experience ? ` · ${user.experience} yrs` : ""}</p>}
-            </div>
+        <header style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 16, padding: "12px 0 24px", marginBottom: 20, borderBottom: "1px solid #e0e7e8" }}>
+          <div>
+            <p style={{ color: "#61757c", fontSize: 12, margin: "0 0 7px" }}>Practice overview</p>
+            <h1 style={{ color: NAVY, fontSize: "clamp(24px, 3vw, 30px)", fontWeight: 600, letterSpacing: "-.7px", margin: 0 }}>Dr. {user.name || "Doctor"}</h1>
+            {user.specialization && <p style={{ color: "#61757c", fontSize: 14, margin: "7px 0 0" }}>{user.specialization}{user.experience ? ` · ${user.experience} years of experience` : ""}</p>}
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", position: "relative" }}>
-            {pendingCount > 0 && (
-              <div style={{ background: "rgba(180,83,9,0.18)", border: "1px solid rgba(180,83,9,0.28)", borderRadius: 10, padding: "7px 13px", display: "flex", alignItems: "center", gap: 6 }}>
-                <AlertCircle size={12} color="#fbbf24" />
-                <span style={{ color: "#fbbf24", fontWeight: 700, fontSize: "0.76rem" }}>{pendingCount} pending</span>
-              </div>
-            )}
-            <button onClick={() => { localStorage.clear(); navigate("/login"); }}
-              style={{ padding: "8px 18px", borderRadius: 10, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.18)", color: "white", fontWeight: 700, fontSize: "0.8rem", cursor: "pointer", fontFamily: FF }}>
-              Logout
-            </button>
-          </div>
-        </motion.div>
+          {pendingCount > 0 && <button onClick={() => setTab("appointments")} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 12px", border: "1px solid #e6d6b9", borderRadius: 7, color: "#855b16", background: "#fffaf0", fontSize: 13 }}><Clock size={15}/>{pendingCount} pending {pendingCount === 1 ? "request" : "requests"}<ChevronRight size={14}/></button>}
+        </header>
 
-        {/* Stat Strip */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(175px, 1fr))", gap: 12, marginBottom: 16 }}>
+        <section aria-label="Appointment summary" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 24 }}>
           {[
-            { label: "Total Appointments", value: loading ? "—" : stats.total,           color: INDIGO,    icon: "📅" },
-            { label: "Today's Schedule",   value: loading ? "—" : stats.todayCount,       color: TEAL,      icon: "🗓" },
-            { label: "Pending Review",     value: loading ? "—" : pendingCount,           color: "#b45309", icon: "⏳" },
-            { label: "Unique Patients",    value: loading ? "—" : stats.uniquePatients,   color: "#e11d48", icon: "👥" },
-          ].map((s, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-              style={{ ...card, padding: "1rem 1.3rem", display: "flex", alignItems: "center", gap: 11 }}>
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: `${s.color}10`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem", flexShrink: 0 }}>{s.icon}</div>
-              <div>
-                <p style={{ fontSize: "1.4rem", fontWeight: 800, color: s.color, margin: 0, lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontSize: "0.67rem", color: "#94a3b8", margin: "3px 0 0", fontWeight: 500 }}>{s.label}</p>
-              </div>
-            </motion.div>
+            { label: "Appointments", value: stats.total, icon: Calendar },
+            { label: "Today", value: stats.todayCount, icon: Clock },
+            { label: "Pending requests", value: pendingCount, icon: FileText },
+            { label: "Patients", value: stats.uniquePatients, icon: Users },
+          ].map(({ label, value, icon: Icon }) => (
+            <div key={label} style={{ background: "white", border: "1px solid #e0e7e8", borderRadius: 9, padding: "18px 20px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, color: "#61757c" }}><p style={{ fontSize: 13, margin: 0 }}>{label}</p><Icon size={17} strokeWidth={1.6}/></div>
+              <p style={{ fontSize: 28, color: NAVY, fontWeight: 600, letterSpacing: "-.5px", margin: "12px 0 0", lineHeight: 1.2 }}>{loading ? "—" : value}</p>
+            </div>
           ))}
-        </div>
+        </section>
 
         {/* Tab Bar */}
         <div style={{ background: "white", borderRadius: 13, padding: 4, border: "1px solid #e8edf2", display: "flex", gap: 3, marginBottom: 18, flexWrap: "wrap" }}>
