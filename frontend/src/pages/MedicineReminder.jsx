@@ -8,10 +8,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import {
-  Bell, BellOff, Plus, Trash2, Check, Clock,
-  Pill, Edit3, X, AlertCircle, Moon, Sun,
-} from "lucide-react";
+import { Bell, BellOff, Plus, Trash2, Check, Clock, Pill, Edit3, X, Moon, Sun } from "lucide-react";
 
 const FF   = "'DM Sans', 'Segoe UI', sans-serif";
 const NAVY = "#0d1b2a";
@@ -237,7 +234,7 @@ function AddEditModal({ initialData, onSave, onClose }) {
           <button
             onClick={() => { if (!form.name) { toast.error("Enter medicine name"); return; } onSave({ ...form, id: initialData?.id || generateId() }); }}
             style={{ padding: "12px", borderRadius: 12, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, color: "white", fontWeight: 800, fontSize: "0.9rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: `0 6px 18px ${TEAL}30` }}>
-            {initialData ? "Save Changes" : "Add Medicine +"} 
+            {initialData ? "Save Changes" : "Add Medicine +"}
           </button>
         </div>
       </motion.div>

@@ -19,43 +19,19 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { assessPatientRisk } from "../../services/aiService";
-import {
-  ShieldAlert, RefreshCw, ChevronDown, ChevronUp,
-  AlertTriangle, CheckCircle, Clock, TrendingUp,
-} from "lucide-react";
-
-console.log("NEW AI SERVICE VERSION LOADED");
+import { ShieldAlert, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, TrendingUp } from "lucide-react";
 
 const FF   = "'DM Sans', 'Segoe UI', sans-serif";
 const NAVY = "#0d1b2a";
 const card = { background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" };
 
 const RISK_CONFIG = {
+  unknown: { color: "#64748b", bg: "#f8fafc", border: "#cbd5e1", icon: "—", pulse: false },
   low:      { color: "#16a34a", bg: "#f0fdf4", border: "rgba(22,163,74,0.2)",    icon: "🟢", pulse: false },
   medium:   { color: "#b45309", bg: "#fffbeb", border: "rgba(180,83,9,0.2)",     icon: "🟡", pulse: false },
   high:     { color: "#dc2626", bg: "#fef2f2", border: "rgba(220,38,38,0.2)",    icon: "🔴", pulse: true  },
   critical: { color: "#7c2d12", bg: "#fff7ed", border: "rgba(124,45,18,0.3)",    icon: "🚨", pulse: true  },
 };
-
-function RiskGauge({ score, color }) {
-  const angle = (score / 100) * 180 - 90; // -90 to 90 degrees
-  return (
-    <div style={{ position: "relative", width: 60, height: 36, overflow: "hidden" }}>
-      <svg width="60" height="36" viewBox="0 0 60 36">
-        {/* Track */}
-        <path d="M5,35 A25,25 0 0,1 55,35" fill="none" stroke="#f1f5f9" strokeWidth="7" strokeLinecap="round" />
-        {/* Fill */}
-        <path d="M5,35 A25,25 0 0,1 55,35" fill="none" stroke={color} strokeWidth="7" strokeLinecap="round"
-          strokeDasharray={`${(score / 100) * 78.5} 78.5`} />
-        {/* Needle */}
-        <line x1="30" y1="35" x2="30" y2="12"
-          stroke={color} strokeWidth="2.5" strokeLinecap="round"
-          transform={`rotate(${angle}, 30, 35)`} />
-        <circle cx="30" cy="35" r="3" fill={color} />
-      </svg>
-    </div>
-  );
-}
 
 function PatientRiskCard({ patient, symptoms, index }) {
   const [assessment, setAssessment] = useState(null);
@@ -69,18 +45,14 @@ function PatientRiskCard({ patient, symptoms, index }) {
           s => String(s.patient?._id || s.patient) === String(patient._id)
         );
         if (patientSymptoms.length === 0) {
-          setAssessment({ riskLevel: "low", riskScore: 10, riskColor: "green", riskBadge: "No Symptoms", topConcerns: [], deterioratingPattern: false, alertMessage: "No recent symptom logs.", recommendedAction: "Routine follow-up", daysMonitored: 0 });
+          setAssessment({ riskLevel: "unknown", riskBadge: "Not assessed", topConcerns: [], deterioratingPattern: false, alertMessage: "No recent symptom logs.", recommendedAction: "No risk assessment is available without symptom records." });
         } else {
           const result = await assessPatientRisk(patient.name, patientSymptoms);
-          console.log("AI RISK RESULT:", {
-            patient: patient.name,
-            result,
-          });
           setAssessment(result);
         }
       } catch (err) {
         console.error("RISK ASSESSMENT ERROR:", err);
-        setAssessment({ riskLevel: "low", riskScore: 0, riskColor: "green", riskBadge: "N/A", topConcerns: [], deterioratingPattern: false, alertMessage: "Could not assess risk.", recommendedAction: "Manual review needed", daysMonitored: 0 });
+        setAssessment({ riskLevel: "unknown", riskBadge: "Unavailable", topConcerns: [], deterioratingPattern: false, alertMessage: "Could not assess risk.", recommendedAction: "Manual review needed" });
       } finally {
         setLoading(false);
       }
@@ -90,7 +62,7 @@ function PatientRiskCard({ patient, symptoms, index }) {
     return () => clearTimeout(timer);
   }, [patient, symptoms, index]);
 
-  const cfg = assessment ? RISK_CONFIG[assessment.riskLevel] || RISK_CONFIG.low : null;
+  const cfg = assessment ? RISK_CONFIG[assessment.riskLevel] || RISK_CONFIG.unknown : null;
   const isHighRisk = assessment?.riskLevel === "high" || assessment?.riskLevel === "critical";
 
   return (
@@ -129,7 +101,7 @@ function PatientRiskCard({ patient, symptoms, index }) {
           {loading ? (
             <div style={{ width: 60, height: 36, background: "#f1f5f9", borderRadius: 8, animation: "pulse 1s ease-in-out infinite" }} />
           ) : (
-            <RiskGauge score={assessment.riskScore} color={cfg.color} />
+            null
           )}
 
           {/* Expand toggle */}
@@ -170,12 +142,7 @@ function PatientRiskCard({ patient, symptoms, index }) {
                   <p style={{ fontSize: "0.62rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 3px" }}>Recommended Action</p>
                   <p style={{ fontSize: "0.78rem", fontWeight: 600, color: NAVY, margin: 0 }}>{assessment.recommendedAction}</p>
                 </div>
-                {assessment.daysMonitored > 0 && (
-                  <div style={{ background: "rgba(0,0,0,0.03)", borderRadius: 9, padding: "8px 10px", textAlign: "center" }}>
-                    <p style={{ fontSize: "0.62rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 3px" }}>Days</p>
-                    <p style={{ fontSize: "1rem", fontWeight: 800, color: cfg.color, margin: 0 }}>{assessment.daysMonitored}</p>
-                  </div>
-                )}
+
               </div>
 
               {assessment.deterioratingPattern && (
@@ -205,17 +172,18 @@ export default function PatientRiskPanel({ patients }) {
   const [loading,     setLoading]     = useState(true);
   const [analyzing,   setAnalyzing]   = useState(false);
   const [active,      setActive]      = useState(false);
+  const [fetchError, setFetchError] = useState("");
   const [refreshKey,  setRefreshKey]  = useState(0);
 
-  const highRiskCount = 0; // will be tracked if needed
 
   const runAnalysis = async () => {
     setAnalyzing(true);
     setLoading(true);
+    setFetchError("");
     try {
-      console.log("Fetching symptoms...");
+
       const res = await axios.get("/api/symptoms/", { headers });
-      console.log("Symptoms fetched:", res.data);
+
 
       setAllSymptoms(res.data || []);
       setActive(true);
@@ -223,7 +191,8 @@ export default function PatientRiskPanel({ patients }) {
       // Symptoms endpoint might need doctor auth — fallback to empty
       console.error("SYMPTOMS FETCH ERROR:", err);
       setAllSymptoms([]);
-      setActive(true);
+      setActive(false);
+      setFetchError("Symptom records could not load. No patient risk has been assessed.");
     } finally {
       setLoading(false);
       setAnalyzing(false);
@@ -236,6 +205,7 @@ export default function PatientRiskPanel({ patients }) {
   if (!active) {
     return (
       <div style={{ ...card, padding: "1.6rem", marginTop: 20 }}>
+        {fetchError && <p role="alert" style={{color:"#b45309",marginBottom:12}}>{fetchError}</p>}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -243,7 +213,8 @@ export default function PatientRiskPanel({ patients }) {
             </div>
             <div>
               <p style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "0.95rem" }}>AI Patient Risk Assessment</p>
-              <p style={{ color: "#94a3b8", fontSize: "0.75rem", margin: 0 }}>Flag high-risk patients based on symptom patterns</p>
+              <p style={{ color: "#94a3b8", fontSize: "0.75rem", margin: 0 }}>AI-assisted symptom review, not a validated clinical risk score.</p>
+              {fetchError && <p role="alert" style={{color:"#b45309"}}>{fetchError}</p>}
             </div>
           </div>
           <button onClick={runAnalysis} disabled={analyzing}

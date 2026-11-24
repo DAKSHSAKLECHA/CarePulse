@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -124,7 +124,7 @@ export default function DoctorsList() {
             Meet Our Specialists
           </h1>
           <p style={{ color: "#64748b", maxWidth: 500, margin: "0 auto", lineHeight: 1.65 }}>
-            Connect with board-certified medical professionals for expert care and consultations.
+            Browse registered doctor profiles and request an appointment. Credentials are self-reported.
           </p>
         </motion.div>
 
@@ -278,7 +278,7 @@ export default function DoctorsList() {
                     Before booking with Dr. {triageDoctor.name}
                   </p>
                   <p style={{ color: "#94a3b8", fontSize: "0.75rem", margin: "2px 0 0" }}>
-                    Quick AI health check — takes 30 seconds
+                    AI-assisted pre-appointment questions
                   </p>
                 </div>
                 <button

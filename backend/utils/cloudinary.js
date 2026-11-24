@@ -1,7 +1,8 @@
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 
-dotenv.config(); // Load environment variables
+dotenv.config({ path: fileURLToPath(new URL("../../.env", import.meta.url)) });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 

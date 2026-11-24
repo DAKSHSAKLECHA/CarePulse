@@ -8,12 +8,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Sparkles, Calendar, ChevronDown, Mic, MicOff,
-  TrendingUp, TrendingDown, Minus, Activity,
-  Heart, Brain, AlertCircle, CheckCircle, X,
-  BookOpen, Flame, Zap,
-} from "lucide-react";
+import { Sparkles, Calendar, ChevronDown, Mic, MicOff, TrendingUp, TrendingDown, Minus, Heart, AlertCircle, X, BookOpen, Flame, Zap } from "lucide-react";
 import { predictDisease } from "../../services/aiService";
 
 // ── Design tokens ─────────────────────────────────────────────

@@ -56,40 +56,6 @@ async function generateTimeline(patientData, mode) {
 }
 
 // ── Health Score Ring ─────────────────────────────────────────
-function HealthScoreRing({ score, grade, trend }) {
-  const r   = 52;
-  const circ = 2 * Math.PI * r;
-  const dash = (score / 100) * circ;
-  const color = score >= 80 ? "#16a34a" : score >= 60 ? TEAL : score >= 40 ? GOLD : "#dc2626";
-
-  return (
-    <div style={{ position: "relative", width: 130, height: 130, flexShrink: 0 }}>
-      <svg width="130" height="130" viewBox="0 0 130 130">
-        {/* Track */}
-        <circle cx="65" cy="65" r={r} fill="none" stroke="#f1f5f9" strokeWidth="10" />
-        {/* Glow */}
-        <circle cx="65" cy="65" r={r} fill="none" stroke={color} strokeWidth="10"
-          strokeOpacity="0.15" />
-        {/* Progress */}
-        <motion.circle
-          cx="65" cy="65" r={r} fill="none" stroke={color} strokeWidth="10"
-          strokeLinecap="round" transform="rotate(-90 65 65)"
-          initial={{ strokeDasharray: `0 ${circ}` }}
-          animate={{ strokeDasharray: `${dash} ${circ}` }}
-          transition={{ duration: 1.8, ease: "easeOut", delay: 0.3 }}
-        />
-        {/* Score text */}
-        <text x="65" y="58" textAnchor="middle" fontSize="22" fontWeight="800" fill={NAVY} fontFamily={FF}>{score}</text>
-        <text x="65" y="74" textAnchor="middle" fontSize="13" fontWeight="700" fill={color} fontFamily={FF}>{grade}</text>
-        <text x="65" y="88" textAnchor="middle" fontSize="9" fontWeight="600" fill="#94a3b8" fontFamily={FF}>HEALTH SCORE</text>
-      </svg>
-      {/* Trend badge */}
-      <div style={{ position: "absolute", bottom: 0, right: 0, background: "white", borderRadius: 99, padding: "3px 8px", border: "1px solid #e8edf2", display: "flex", alignItems: "center", gap: 3, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
-        {TREND_ICONS[trend] || TREND_ICONS.flat}
-      </div>
-    </div>
-  );
-}
 
 // ── Chapter Card ──────────────────────────────────────────────
 function ChapterCard({ chapter, index, isLast }) {
@@ -233,12 +199,6 @@ function PatientStoryCard({ patient, appointments, index }) {
     }
   };
 
-  const scoreColor = story
-    ? story.healthScore >= 80 ? "#16a34a"
-    : story.healthScore >= 60 ? TEAL
-    : story.healthScore >= 40 ? GOLD : "#dc2626"
-    : "#94a3b8";
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -262,12 +222,6 @@ function PatientStoryCard({ patient, appointments, index }) {
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {/* Score badge */}
-          {story && (
-            <div style={{ textAlign: "center", background: `${scoreColor}10`, borderRadius: 10, padding: "5px 10px", border: `1px solid ${scoreColor}20` }}>
-              <p style={{ fontWeight: 800, color: scoreColor, margin: 0, fontSize: "1rem", lineHeight: 1 }}>{story.healthScore}</p>
-              <p style={{ fontSize: "0.58rem", color: scoreColor, margin: 0, fontWeight: 700 }}>{story.healthGrade}</p>
-            </div>
-          )}
 
           <button onClick={generate} disabled={loading}
             style={{ padding: "7px 14px", borderRadius: 10, background: story ? "#f1f5f9" : `linear-gradient(135deg, ${TEAL}, #0d9488)`, border: "none", color: story ? "#64748b" : "white", fontWeight: 700, fontSize: "0.72rem", cursor: loading ? "not-allowed" : "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 5, opacity: loading ? 0.7 : 1, boxShadow: !story ? `0 4px 12px ${TEAL}30` : "none" }}>
@@ -478,7 +432,7 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
           </button>
 
           <p style={{ color: "#94a3b8", fontSize: "0.68rem", margin: "12px 0 0" }}>
-            ✦ AI-Assisted Analysis · Takes ~5 seconds · Your data stays private
+            AI-assisted summary of submitted records · Generated information requires review
           </p>
         </motion.div>
       )}
@@ -540,7 +494,7 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
               </div>
 
               {/* Health score ring */}
-              <HealthScoreRing score={story.healthScore} grade={story.healthGrade} trend={story.trend} />
+
             </div>
           </div>
 

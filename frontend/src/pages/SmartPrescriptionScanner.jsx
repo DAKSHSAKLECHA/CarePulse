@@ -9,11 +9,7 @@ import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { scanPrescription } from "../../services/aiService";
 import toast from "react-hot-toast";
-import {
-  Upload, FileText, Zap, AlertTriangle, CheckCircle,
-  Pill, Calendar, User, Stethoscope, X, Eye, Download,
-  RotateCcw, Camera,
-} from "lucide-react";
+import { Upload, FileText, Zap, AlertTriangle, CheckCircle, Pill, Calendar, User, Stethoscope, X, Eye, RotateCcw } from "lucide-react";
 
 const FF   = "'DM Sans', 'Segoe UI', sans-serif";
 const NAVY = "#0d1b2a";
@@ -262,7 +258,7 @@ export default function SmartPrescriptionScanner() {
                     </span>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6 }}>
                       <CheckCircle size={14} color="#16a34a" />
-                      <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: 600 }}>{result.confidence}% confidence</span>
+
                     </div>
                   </div>
                   <button onClick={() => { setFile(null); setPreview(null); setResult(null); }}

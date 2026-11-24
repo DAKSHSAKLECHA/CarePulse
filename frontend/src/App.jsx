@@ -18,8 +18,6 @@ import MyAppointments from "./pages/MyAppointments";
 import PatientDashboard from "./pages/PatientDashboard"; // 1. Import the new page
 import SmartPrescriptionScanner from "./pages/SmartPrescriptionScanner";
 import MedicineReminder from "./pages/MedicineReminder";
-import AITriage from "./components/AITriage";
-import PatientRiskPanel from "./components/PatientRiskPanel";
 import SymptomPredictor from "./pages/SymptomPredictor";
 
 function App() {

@@ -13,13 +13,10 @@
 // ─────────────────────────────────────────────────────────────
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { getTriageAssessment } from "../../services/aiService";
 import toast from "react-hot-toast";
-import {
-  Activity, ChevronRight, AlertTriangle, CheckCircle,
-  Phone, Clock, Home, Stethoscope, X, ArrowLeft,
-} from "lucide-react";
+import { Activity, ChevronRight, AlertTriangle, CheckCircle, Phone, Clock, Home, Stethoscope, ArrowLeft } from "lucide-react";
 
 const FF   = "'DM Sans', 'Segoe UI', sans-serif";
 const NAVY = "#0d1b2a";

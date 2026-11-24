@@ -38,15 +38,7 @@ const MEDICINES = [
 ];
 
 const WEEK_DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-const DEFAULT_SCHEDULE = {
-  Mon: { enabled: true,  start: "09:00", end: "17:00", slots: 8 },
-  Tue: { enabled: true,  start: "09:00", end: "17:00", slots: 8 },
-  Wed: { enabled: true,  start: "10:00", end: "16:00", slots: 6 },
-  Thu: { enabled: true,  start: "09:00", end: "17:00", slots: 8 },
-  Fri: { enabled: true,  start: "09:00", end: "15:00", slots: 6 },
-  Sat: { enabled: false, start: "10:00", end: "14:00", slots: 4 },
-  Sun: { enabled: false, start: "10:00", end: "14:00", slots: 4 },
-};
+const DEFAULT_SCHEDULE = Object.fromEntries(["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(day=>[day,{enabled:false,start:"09:00",end:"17:00",slots:0}]));
 
 // ─── SHARED UI HELPERS ────────────────────────────────────────
 const card = {
@@ -676,14 +668,22 @@ function PrescriptionTab({ patients }) {
 
 // ─── TAB: SCHEDULE ────────────────────────────────────────────
 function ScheduleTab({ appointments }) {
-  const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE);
+  const scheduleKey = "carepulse_schedule_" + (JSON.parse(localStorage.getItem("user") || "{}").id || "doctor");
+  const [schedule, setSchedule] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(scheduleKey));
+      return saved && Object.keys(DEFAULT_SCHEDULE).every(day => saved[day] && typeof saved[day].enabled === "boolean" && Number.isFinite(saved[day].slots)) ? saved : DEFAULT_SCHEDULE;
+    } catch { return DEFAULT_SCHEDULE; }
+  });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved]   = useState(false);
 
   const bookedPerDay = useMemo(() => {
     const map = { Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0, Sun:0 };
     const DN  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    appointments.filter(a => a.status === "confirmed" || a.status === "pending").forEach(a => {
+    const start = new Date(); start.setHours(0,0,0,0);
+    const end = new Date(start); end.setDate(end.getDate()+7);
+    appointments.filter(a => (a.status === "confirmed" || a.status === "pending") && new Date(a.date) >= start && new Date(a.date) < end).forEach(a => {
       const d = new Date(a.date || a.createdAt);
       if (!isNaN(d)) { const k = DN[d.getDay()]; if (map[k] !== undefined) map[k]++; }
     });
@@ -692,10 +692,13 @@ function ScheduleTab({ appointments }) {
 
   const save = async () => {
     setSaving(true);
-    await new Promise(r => setTimeout(r, 700));
-    setSaving(false); setSaved(true);
-    toast.success("Schedule saved!");
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      localStorage.setItem(scheduleKey, JSON.stringify(schedule));
+      setSaved(true);
+      toast.success("Schedule saved on this browser. It is not published to patient booking.");
+      setTimeout(() => setSaved(false), 3000);
+    } catch { toast.error("The schedule could not be saved in this browser."); }
+    finally { setSaving(false); }
   };
 
   const totalSlots  = Object.values(schedule).filter(d => d.enabled).reduce((s, d) => s + d.slots, 0);
@@ -718,7 +721,7 @@ function ScheduleTab({ appointments }) {
         ))}
       </div>
 
-      <SectionHead title="Weekly Availability" sub="Set working hours and max consultation slots per day" />
+      <SectionHead title="Weekly Schedule Draft" sub="Saved only in this browser. This does not set availability in patient booking. Booking counts cover the next seven days." />
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
         {WEEK_DAYS.map(day => {
@@ -922,9 +925,11 @@ export default function DoctorDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [patients,     setPatients]     = useState([]);
   const [stats,        setStats]        = useState({ total: 0, todayCount: 0, pending: 0, uniquePatients: 0 });
+  const [loadError, setLoadError] = useState("");
   const [loading,      setLoading]      = useState(true);
 
   const fetchAll = async () => {
+    setLoadError("");
     setLoading(true);
     try {
       const [apptRes, patRes, statsRes] = await Promise.all([
@@ -932,11 +937,12 @@ export default function DoctorDashboard() {
         axios.get("/api/appointments/doctor/patients", { headers }),
         axios.get("/api/appointments/doctor/stats",    { headers }),
       ]);
-      setAppointments(apptRes.data   || []);
+      if (!Array.isArray(apptRes.data) || !Array.isArray(patRes.data) || !statsRes.data || !["total","todayCount","pending","uniquePatients"].every(key=>Number.isFinite(statsRes.data[key]))) throw new Error("Invalid dashboard data");
+      setAppointments(apptRes.data);
       setPatients(patRes.data        || []);
       setStats(statsRes.data         || {});
     } catch {
-      toast.error("Failed to load dashboard. Is your backend running?");
+      setLoadError("Saved doctor records could not load. No statistics are available.");
     } finally {
       setLoading(false);
     }
@@ -964,6 +970,7 @@ export default function DoctorDashboard() {
     { key: "analytics",    label: "Analytics",     icon: <TrendingUp size={13} /> },
   ];
 
+  if (loadError) return <div style={{padding:"8rem 1.5rem",maxWidth:900,margin:"0 auto"}}><h1 style={{fontSize:"1.6rem",fontWeight:700}}>Doctor dashboard</h1><p role="alert" style={{margin:"20px 0",color:"#9a3412"}}>{loadError}</p><button onClick={fetchAll} style={{padding:"10px 18px",background:"#0a7e6e",color:"white",borderRadius:10}}>Retry loading records</button></div>;
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #f0f4ff 0%, #ffffff 60%, #eef4fb 100%)", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem" }}>

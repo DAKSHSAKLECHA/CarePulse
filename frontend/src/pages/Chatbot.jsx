@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { sendChatMessage } from "../../services/aiService";
 
 const FF   = "'DM Sans', 'Segoe UI', sans-serif";

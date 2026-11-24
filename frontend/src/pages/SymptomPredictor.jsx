@@ -10,17 +10,14 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { predictDisease } from "../../services/aiService";
 import toast from "react-hot-toast";
-import {
-  Brain, AlertTriangle, CheckCircle, Clock,
-  TrendingUp, Shield, ChevronRight, RefreshCw,
-  Stethoscope, Activity, Zap,
-} from "lucide-react";
+import { Brain, AlertTriangle, Shield, ChevronRight, RefreshCw } from "lucide-react";
 
 const FF   = "'DM Sans', 'Segoe UI', sans-serif";
 const TEAL = "#0a7e6e";
 const NAVY = "#0d1b2a";
 
 const URGENCY_CONFIG = {
+  unknown: {color:"#64748b",bg:"#f8fafc",border:"#cbd5e1",icon:"—",label:"Not assessed"},
   low:       { color: "#16a34a", bg: "#f0fdf4", border: "rgba(22,163,74,0.2)",   icon: "🟢", label: "Low Risk"       },
   medium:    { color: "#b45309", bg: "#fffbeb", border: "rgba(180,83,9,0.2)",    icon: "🟡", label: "Moderate Risk"  },
   high:      { color: "#dc2626", bg: "#fef2f2", border: "rgba(220,38,38,0.2)",   icon: "🔴", label: "High Risk"      },
@@ -28,29 +25,13 @@ const URGENCY_CONFIG = {
 };
 
 const RISK_CONFIG = {
+  unknown: {color:"#64748b",label:"Not assessed",grad:"linear-gradient(135deg,#64748b,#94a3b8)"},
   low:    { color: "#16a34a", label: "Low Risk",      grad: "linear-gradient(135deg, #16a34a, #4ade80)" },
   medium: { color: "#b45309", label: "Medium Risk",   grad: "linear-gradient(135deg, #b45309, #f59e0b)" },
   high:   { color: "#dc2626", label: "High Risk",     grad: "linear-gradient(135deg, #dc2626, #f87171)" },
 };
 
 const card = { background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" };
-
-function ConfidenceBar({ value, color }) {
-  return (
-    <div style={{ marginTop: 6 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-        <span style={{ fontSize: "0.7rem", color: "#94a3b8", fontWeight: 600 }}>Confidence</span>
-        <span style={{ fontSize: "0.7rem", fontWeight: 800, color }}>{value}%</span>
-      </div>
-      <div style={{ height: 6, borderRadius: 99, background: "#f1f5f9", overflow: "hidden" }}>
-        <motion.div
-          initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 1, ease: "easeOut" }}
-          style={{ height: "100%", borderRadius: 99, background: color }}
-        />
-      </div>
-    </div>
-  );
-}
 
 function PulseLoader() {
   return (
@@ -64,7 +45,7 @@ function PulseLoader() {
       </div>
       <div style={{ textAlign: "center" }}>
         <p style={{ fontWeight: 800, color: NAVY, fontSize: "1rem", margin: "0 0 4px" }}>AI is analyzing your symptoms</p>
-        <p style={{ color: "#94a3b8", fontSize: "0.82rem", margin: 0 }}>Scanning {" "}<span style={{ color: TEAL, fontWeight: 700 }}>14 days</span> of health data…</p>
+        <p style={{ color: "#94a3b8", fontSize: "0.82rem", margin: 0 }}>Reviewing your saved symptom entries…</p>
       </div>
       <style>{`@keyframes ping { 0%,100%{transform:scale(1);opacity:.3} 50%{transform:scale(1.3);opacity:.1} }`}</style>
     </div>
@@ -111,7 +92,7 @@ export default function SymptomPredictor() {
         symptomEntries: symptoms
       });
 
-      console.log(data);
+
       setResult(data);
     } catch (e) {
       setError("CareAI analysis unavailable. Please try again shortly.");
@@ -122,7 +103,7 @@ export default function SymptomPredictor() {
     }
   };
 
-  const overallCfg = result ? RISK_CONFIG[result.overallRisk] || RISK_CONFIG.low : null;
+  const overallCfg = result ? RISK_CONFIG[result.overallRisk] || RISK_CONFIG.unknown : null;
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #f0f9f6 0%, #ffffff 60%, #f0f4ff 100%)", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
@@ -142,9 +123,7 @@ export default function SymptomPredictor() {
                 <span style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>✦ AI-Assisted Analysis</span>
               </div>
               <h1 style={{ color: "white", fontWeight: 800, fontSize: "clamp(1.4rem, 3vw, 2rem)", margin: "0 0 6px", letterSpacing: "-0.02em" }}>Symptom Prediction Engine</h1>
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.88rem", margin: 0, maxWidth: 500 }}>
-                CareAI performs a clinical analysis of your logged symptoms to detect patterns and predict possible conditions with confidence scores.
-              </p>
+
             </div>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
               <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 14, padding: "12px 18px", border: "1px solid rgba(255,255,255,0.1)", textAlign: "center" }}>
@@ -265,7 +244,7 @@ export default function SymptomPredictor() {
                 <h3 style={{ fontWeight: 800, color: NAVY, fontSize: "1rem", margin: "0 0 12px" }}>🔬 Possible Conditions</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
                   {result.predictions?.map((pred, i) => {
-                    const urg = URGENCY_CONFIG[pred.urgency] || URGENCY_CONFIG.low;
+                    const urg = URGENCY_CONFIG[pred.urgency] || URGENCY_CONFIG.unknown;
                     return (
                       <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
                         style={{ ...card, padding: "1.4rem" }}>
@@ -281,7 +260,7 @@ export default function SymptomPredictor() {
                           </div>
                         </div>
                         <p style={{ fontSize: "0.8rem", color: "#64748b", margin: "0 0 10px", lineHeight: 1.5 }}>{pred.description}</p>
-                        <ConfidenceBar value={pred.confidence} color={urg.color} />
+
                         <div style={{ marginTop: 10, background: "#f8fafc", borderRadius: 10, padding: "8px 10px", fontSize: "0.76rem", color: "#4a6070", border: "1px solid #e8edf2" }}>
                           💡 {pred.recommendation}
                         </div>

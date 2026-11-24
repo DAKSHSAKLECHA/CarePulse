@@ -1,5 +1,5 @@
 // pages/Activities.jsx
-import React from "react";
+
 import { motion } from "framer-motion";
 
 const articles = [
@@ -208,7 +208,7 @@ export default function Activities() {
               Consistency is the key to health.
             </h3>
             <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.875rem", margin: 0 }}>
-              Just 20 minutes of movement a day improves mood, sleep, and cardiovascular health.
+              Browse activity resources and choose what fits your needs.
             </p>
           </div>
           <a href="/symptom" style={{ textDecoration: "none", position: "relative" }}>

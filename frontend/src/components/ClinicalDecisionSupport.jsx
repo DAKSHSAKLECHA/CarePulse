@@ -20,13 +20,8 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
+import { Stethoscope, FileText, AlertTriangle, ChevronDown, ChevronUp, Sparkles, Copy, CheckCircle, Brain, Shield, User, TrendingUp, AlertCircle, BookOpen, Zap, Activity } from "lucide-react";
 import {
-  Stethoscope, FileText, AlertTriangle, ChevronDown,
-  ChevronUp, Sparkles, RefreshCw, Copy, CheckCircle,
-  Brain, Shield, Clock, User, Pill, TrendingUp,
-  AlertCircle, BookOpen, Zap, Activity,
-} from "lucide-react";
-import { 
   generateClinicalBrief,
   generateSOAPNote,
   generatePreAppointmentBrief,
@@ -39,7 +34,6 @@ const NAVY  = "#0d1b2a";
 const TEAL  = "#0a7e6e";
 const INDIGO = "#4f46e5";
 const card  = { background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 4px 20px rgba(0,0,0,0.05)" };
-
 
 // ── Shared loading state ──────────────────────────────────────
 function AILoader({ label = "CareAI is analysing…" }) {
@@ -85,12 +79,8 @@ export function ClinicalBrief({ patient, appointments = [], symptoms = [] }) {
     ? symptoms
     : [];
 
-  if (!patient?._id) {
-    return null;
-  }
-
   const patientAppts = appointments.filter(
-    a => String(a.patient?._id || a.patient) === String(patient._id)
+    a => String(a.patient?._id || a.patient) === String(patient?._id)
   );
 
   const generate = useCallback(async () => {
@@ -120,6 +110,8 @@ export function ClinicalBrief({ patient, appointments = [], symptoms = [] }) {
       setLoading(false);
     }
   }, [patient, patientAppts, symptoms, brief]);
+
+  if (!patient?._id) return null;
 
   const priorityColor = brief?.priorityLevel === "critical" ? "#dc2626"
     : brief?.priorityLevel === "urgent" ? "#b45309" : TEAL;
@@ -189,10 +181,7 @@ export function ClinicalBrief({ patient, appointments = [], symptoms = [] }) {
                         <div key={i} style={{ background: "white", borderRadius: 10, padding: "9px 12px", border: "1px solid #e8edf2", display: "flex", gap: 10, alignItems: "flex-start" }}>
                           <div style={{ width: 24, height: 24, borderRadius: 7, background: i === 0 ? `${INDIGO}10` : "#f8fafc", color: i === 0 ? INDIGO : "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.7rem", flexShrink: 0 }}>{i + 1}</div>
                           <div style={{ flex: 1 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
-                              <p style={{ fontWeight: 700, color: NAVY, margin: 0, fontSize: "0.8rem" }}>{d.condition}</p>
-                              <span style={{ fontSize: "0.62rem", fontWeight: 700, color: d.probability === "High" ? "#dc2626" : d.probability === "Moderate" ? "#b45309" : "#16a34a", background: d.probability === "High" ? "#fef2f2" : d.probability === "Moderate" ? "#fffbeb" : "#f0fdf4", padding: "1px 7px", borderRadius: 99 }}>{d.probability}</span>
-                            </div>
+
                             <p style={{ fontSize: "0.73rem", color: "#64748b", margin: 0 }}>{d.reasoning}</p>
                           </div>
                         </div>
@@ -410,8 +399,6 @@ export function PreAppointmentBrief({ appointment, recentSymptoms = [] }) {
   const [loading, setLoading] = useState(false);
   const [open,    setOpen]    = useState(false);
 
-  if (!appointment) return null;
-
   const generate = useCallback(async () => {
     if (brief) { setOpen(o => !o); return; }
     setLoading(true);
@@ -433,6 +420,8 @@ export function PreAppointmentBrief({ appointment, recentSymptoms = [] }) {
       setLoading(false);
     }
   }, [appointment, recentSymptoms, brief]);
+
+  if (!appointment) return null;
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
@@ -540,7 +529,7 @@ export function DiagnosisAssist({ patient, symptoms = [], onDiagnosisSelect }) {
       const symptomSummary = symptoms.slice(0, 10).map(s =>
         `${s.date}: ${s.symptoms} (mood: ${s.mood}, notes: ${s.notes || "none"})`
       ).join("\n");
- 
+
       const res = await generateDiagnosisAssist(
         patient,
         symptoms
@@ -594,10 +583,7 @@ export function DiagnosisAssist({ patient, symptoms = [], onDiagnosisSelect }) {
                     <h3 style={{ fontWeight: 800, color: NAVY, margin: "3px 0 0", fontSize: "1rem" }}>{result.primaryDiagnosis?.name}</h3>
                     <span style={{ fontSize: "0.65rem", color: "#94a3b8" }}>ICD-10: {result.primaryDiagnosis?.icdCode}</span>
                   </div>
-                  <div style={{ textAlign: "center", background: "white", borderRadius: 12, padding: "8px 12px", border: "1px solid rgba(124,58,237,0.2)" }}>
-                    <p style={{ fontWeight: 800, color: "#7c3aed", margin: 0, fontSize: "1.2rem", lineHeight: 1 }}>{result.primaryDiagnosis?.probability}%</p>
-                    <p style={{ fontSize: "0.58rem", color: "#94a3b8", margin: 0 }}>probability</p>
-                  </div>
+
                 </div>
                 <p style={{ fontSize: "0.8rem", color: "#334155", margin: "0 0 10px", lineHeight: 1.6 }}>{result.primaryDiagnosis?.clinicalBasis}</p>
                 <div style={{ background: "white", borderRadius: 10, padding: "9px 12px", border: "1px solid rgba(124,58,237,0.1)" }}>
@@ -627,9 +613,7 @@ export function DiagnosisAssist({ patient, symptoms = [], onDiagnosisSelect }) {
                           <p style={{ fontSize: "0.73rem", color: "#64748b", margin: "0 0 4px" }}>{d.distinguishingFeature}</p>
                           <p style={{ fontSize: "0.7rem", color: TEAL, margin: 0, fontWeight: 600 }}>Rule out: {d.rulingOutTest}</p>
                         </div>
-                        <div style={{ textAlign: "center", flexShrink: 0 }}>
-                          <p style={{ fontWeight: 800, color: "#64748b", margin: 0, fontSize: "0.9rem" }}>{d.probability}%</p>
-                        </div>
+
                       </div>
                     ))}
                   </div>

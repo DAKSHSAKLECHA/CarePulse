@@ -1,14 +1,14 @@
 import fetch from "node-fetch";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 
-// ── Gemini model tiers ────────────────────────────────────────
-// gemini-2.5-flash-lite/-flash were retired for new users, so this now uses
-// the current free-tier lineup (Sep 2026): gemini-3.5-flash / -flash-lite.
-// If Google retires these too, just change the two lines below — nothing
-// else in this file needs to change.
+dotenv.config({ path: fileURLToPath(new URL("../../.env", import.meta.url)) });
+
+
 const MODELS = {
   fast:    process.env.GEMINI_MODEL_FAST    || "gemini-3.5-flash-lite",
-  default: process.env.GEMINI_MODEL_DEFAULT || "gemini-3.5-flash",
-  power:   process.env.GEMINI_MODEL_POWER   || "gemini-3.5-flash",
+  default: process.env.GEMINI_MODEL_DEFAULT || "gemini-3.5-flash-lite",
+  power:   process.env.GEMINI_MODEL_POWER   || "gemini-3.5-flash-lite"
 };
 
 const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -18,6 +18,12 @@ const SYSTEM_PROMPT =
   "Always respond with valid JSON only. No markdown, no explanation, no code fences. " +
   "Just the raw JSON object exactly as specified.";
 
+function removeUnvalidatedMetrics(value) {
+  if (Array.isArray(value)) return value.map(removeUnvalidatedMetrics);
+  if (!value || typeof value !== "object") return value;
+  const blocked = new Set(["confidence", "confidencescore", "probability", "diagnosisprobability", "riskscore", "riskpercentage", "healthscore", "healthgrade", "urgencyscore", "daysmonitored"]);
+  return Object.fromEntries(Object.entries(value).filter(([key]) => !blocked.has(key.replace(/[_-]/g, "").toLowerCase())).map(([key, entry]) => [key, removeUnvalidatedMetrics(entry)]));
+}
 
 function parseAIJson(raw) {
   const cleaned = raw.replace(/```json|```/g, "").trim();
@@ -30,14 +36,9 @@ function parseAIJson(raw) {
     );
   }
 
-  return JSON.parse(match[0]);
+  return removeUnvalidatedMetrics(JSON.parse(match[0]));
 }
 
-// ── Convert Claude-style messages → Gemini "contents" ──────────
-// Accepts messages like [{ role: "user"|"assistant", content: "text" }]
-// or content as an array of Claude-style blocks:
-//   { type: "text", text }
-//   { type: "image", source: { type: "base64", media_type, data } }
 function toGeminiContents(messages) {
   return messages.map((m) => {
     const role = m.role === "assistant" ? "model" : "user";
@@ -51,11 +52,11 @@ function toGeminiContents(messages) {
         return {
           inline_data: {
             mime_type: block.source.media_type,
-            data: block.source.data,
-          },
+            data: block.source.data
+          }
         };
       }
-      // default: treat as text block
+
       return { text: block.text || "" };
     });
 
@@ -77,15 +78,12 @@ async function callGemini(model, contents, systemPrompt, maxTokens) {
   const body = {
     contents,
     generationConfig: {
-      // Thinking controls differ between Gemini models. Use the model default
-      // and leave room for reasoning as well as the visible response.
-      maxOutputTokens: Math.max(maxTokens, 8192),
-    },
+
+      maxOutputTokens: maxTokens
+    }
   };
 
-  if (systemPrompt) {
-    body.system_instruction = { parts: [{ text: systemPrompt }] };
-  }
+  body.system_instruction = { parts: [{ text: [systemPrompt, "Never invent patient readings, measurements, medication doses, dates, events or treatment outcomes. Missing or unreadable values must be null or explicitly unavailable, never typical example values. Do not generate confidence percentages, disease probabilities, numerical risk/health/urgency scores, or health grades: no validated scoring model is provided. Lack of symptom data does not imply low risk. Clinical outputs are drafts for qualified professional review, not confirmed diagnoses."].filter(Boolean).join("\n") }] };
 
   const response = await fetch(
     `${GEMINI_BASE}/${model}:generateContent`,
@@ -93,9 +91,10 @@ async function callGemini(model, contents, systemPrompt, maxTokens) {
       method: "POST",
       headers: {
         "x-goog-api-key": process.env.GEMINI_API_KEY,
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(45000)
     }
   );
 
@@ -108,8 +107,7 @@ async function callGemini(model, contents, systemPrompt, maxTokens) {
   const text = extractGeminiText(data);
 
   if (!text) {
-    // Surface *why* it came back empty (safety block, hit the token
-    // cap, etc.) instead of a bare "no text" error.
+
     const finishReason = data?.candidates?.[0]?.finishReason;
     const blockReason = data?.promptFeedback?.blockReason;
     throw new Error(
@@ -122,16 +120,13 @@ async function callGemini(model, contents, systemPrompt, maxTokens) {
   return text;
 }
 
-// ── Core helper: calls Gemini API, expects JSON back ───────────
-async function callClaude(messages, model = MODELS.default, systemPrompt = SYSTEM_PROMPT, maxTokens = 1500) {
+async function callAIJson(messages, model = MODELS.default, systemPrompt = SYSTEM_PROMPT, maxTokens = 1500) {
   const contents = toGeminiContents(messages);
   const raw = await callGemini(model, contents, systemPrompt, maxTokens);
   return parseAIJson(raw);
 }
 
-
-// helper for chat bot — returns plain text, not JSON
-async function callClaudeText(
+async function callAIText(
   messages,
   model = MODELS.fast,
   systemPrompt = ""
@@ -140,9 +135,6 @@ async function callClaudeText(
   return await callGemini(model, contents, systemPrompt, 700);
 }
 
-// ─────────────────────────────────────────────────────────────
-// FEATURE 1: Symptom → Disease Prediction
-// ─────────────────────────────────────────────────────────────
 export const predictDiseaseService = async (symptomEntries) => {
   if (!symptomEntries || symptomEntries.length === 0) {
     throw new Error("No symptom entries provided.");
@@ -165,7 +157,6 @@ export const predictDiseaseService = async (symptomEntries) => {
       "predictions": [
         {
           "condition": "Condition Name",
-          "confidence": 72,
           "description": "Why this matches the symptom pattern observed",
           "urgency": "low",
           "recommendation": "Specific actionable advice for this condition"
@@ -179,56 +170,22 @@ export const predictDiseaseService = async (symptomEntries) => {
 
     Rules:
     - urgency values: low | medium | high | emergency
-    - overallRisk values: low | medium | high  
-    - confidence is 0-100 integer
-    - Provide exactly 2-3 predictions ranked by confidence
+    - overallRisk values: low | medium | high | unknown
+    - When evidence is insufficient, use unknown, empty predictions and explain the missing information.
     - Never definitively diagnose — frame as "possible" or "may indicate"
     - Always recommend consulting a qualified doctor`;
 
-    
-    // 🔄 REAL CALL (later)
-    return await callClaude(
+    return await callAIJson(
       [{ role: "user", content: prompt }],
       MODELS.default
     );
 
-    // ✅ MOCK RESPONSE (works correctly)
-    // return {
-    //   predictions: [
-    //     {
-    //       condition: "Migraine",
-    //       confidence: 75,
-    //       description: "Symptoms like headache and mood changes suggest possible migraine patterns.",
-    //       urgency: "low",
-    //       recommendation: "Stay hydrated, rest, and consult a doctor if symptoms persist."
-    //     },
-    //     {
-    //       condition: "Tension Headache",
-    //       confidence: 60,
-    //       description: "Stress-related symptoms and mild headache patterns.",
-    //       urgency: "low",
-    //       recommendation: "Reduce stress and maintain proper posture."
-    //     }
-    //   ],
-    //   redFlags: [],
-    //   overallRisk: "low",
-    //   patternSummary: "Symptoms indicate mild recurring headache patterns without alarming signs.",
-    //   nextSteps: "Monitor symptoms and consult a doctor if frequency increases."
-    // };
 };
 
-// ─────────────────────────────────────────────────────────────
-// FEATURE 2: ChatBot
-// ─────────────────────────────────────────────────────────────
 export const chatService = async (history) => {
   if (!history || !Array.isArray(history)) {
     throw new Error("No history");
   }
-
-  // ✅ FIXED MOCK (Claude format)
-  // return {
-  //   reply: "That sounds uncomfortable. Based on what you described, it could be related to mild stress or fatigue.\n\n• Try resting well\n• Stay hydrated\n• Monitor symptoms\n\nIf it continues, it's best to consult a doctor 🙂"
-  // };
 
   const CHAT_SYSTEM_PROMPT = `
     You are CareAI, a clinically-intelligent health assistant built into the CarePulse platform.
@@ -255,8 +212,7 @@ export const chatService = async (history) => {
     - If someone seems distressed, be extra gentle and empathetic
     `;
 
-  // 🔄 REAL CALL
-  const reply = await callClaudeText(
+  const reply = await callAIText(
     history,
     MODELS.fast,
     CHAT_SYSTEM_PROMPT
@@ -265,17 +221,13 @@ export const chatService = async (history) => {
   return { reply };
 };
 
-
-// ─────────────────────────────────────────────────────────────
-// FEATURE 3: AITriage
-// ─────────────────────────────────────────────────────────────
 export const triageSymptomsService = async (answers) => {
   const {
     mainSymptom,
     duration,
     severity,
     existingConditions,
-    ageGroup,
+    ageGroup
   } = answers;
 
   if (!mainSymptom || !severity) {
@@ -294,7 +246,6 @@ export const triageSymptomsService = async (answers) => {
   Return ONLY this JSON structure:
   {
     "urgencyLevel": "routine",
-    "urgencyScore": 4,
     "urgencyLabel": "Book Appointment Soon",
     "color": "yellow",
     "headline": "One clear action-oriented sentence telling patient exactly what to do",
@@ -314,64 +265,22 @@ export const triageSymptomsService = async (answers) => {
   - shouldBook: false only if urgencyLevel is self_care
   - severity 8-10 or chest pain/breathing issues should trigger urgent or emergency`;
 
-// 🔄 REAL CALL LATER
-  return await callClaude(
+  return await callAIJson(
     [{ role: "user", content: prompt }],
     MODELS.fast
   );
 
-  // ✅ MOCK RESPONSE
-  // return {
-  //   urgencyLevel: severity >= 8 ? "urgent" : "routine",
-  //   urgencyScore: severity,
-  //   urgencyLabel:
-  //     severity >= 8 ? "Urgent Medical Attention" : "Book Appointment Soon",
-  //   color: severity >= 8 ? "orange" : "yellow",
-  //   headline:
-  //     severity >= 8
-  //       ? "Your symptoms may require urgent care."
-  //       : "Your symptoms should be checked by a doctor.",
-  //   explanation:
-  //     severity >= 8
-  //       ? "Higher severity symptoms may indicate a more serious issue."
-  //       : "Current symptoms appear manageable but should be monitored.",
-  //   redFlagSymptoms:
-  //     severity >= 8
-  //       ? ["Severe discomfort", "Persistent symptoms"]
-  //       : [],
-  //   suggestedSpecialty: "General Physician",
-  //   estimatedWait:
-  //     severity >= 8 ? "Within 24 hours" : "Within 3 days",
-  //   homeCareTips: [
-  //     "Stay hydrated",
-  //     "Rest properly",
-  //     "Track symptom progression",
-  //   ],
-  //   shouldBook: true,
-  //   emergencyNote:
-  //     severity >= 9
-  //       ? "Seek emergency care if symptoms worsen rapidly."
-  //       : null,
-  // };
 };
 
-// ─────────────────────────────────────────────────────────────
-// FEATURE 4: Smart Prescription Scanner
-// ─────────────────────────────────────────────────────────────
 export const scanPrescriptionService = async (base64Data, mimeType) => {
   if (!base64Data || !mimeType) {
     throw new Error("base64Data and mimeType are required.");
   }
 
-  // const safeMime =
-  //   mimeType === "application/pdf"
-  //     ? "image/jpeg"
-  //     : mimeType;
-
   const allowedMimeTypes = [
     "image/jpeg",
     "image/png",
-    "image/webp",
+    "image/webp"
   ];
 
   if (!allowedMimeTypes.includes(mimeType)) {
@@ -401,12 +310,10 @@ export const scanPrescriptionService = async (base64Data, mimeType) => {
     "followUpDate": "follow-up date/timeframe or null",
     "warnings": ["any warnings or precautions mentioned"],
     "interactions": [],
-    "documentType": "prescription",
-    "confidence": 88
+    "documentType": "prescription"
   }
 
   documentType must be one of: prescription | lab_report | discharge_summary | other
-  confidence is 0-100 based on image clarity and completeness
   Extract ALL medicines listed, even if partially visible`;
 
   const messages = [
@@ -418,59 +325,24 @@ export const scanPrescriptionService = async (base64Data, mimeType) => {
           source: {
             type: "base64",
             media_type: mimeType,
-            data: base64Data,
-          },
+            data: base64Data
+          }
         },
         {
           type: "text",
-          text: prompt,
-        },
-      ],
-    },
+          text: prompt
+        }
+      ]
+    }
   ];
 
-  return await callClaude(
+  return await callAIJson(
     messages,
     MODELS.default
   );
 
-
-  // ✅ TEMP MOCK RESPONSE
-  // return {
-  //   doctorName: "Dr. Sharma",
-  //   patientName: "Rahul Verma",
-  //   date: "2026-05-06",
-  //   diagnosis: "Viral Fever",
-  //   medicines: [
-  //     {
-  //       name: "Paracetamol",
-  //       dosage: "500mg",
-  //       frequency: "Twice daily",
-  //       duration: "5 days",
-  //       instructions: "After meals"
-  //     },
-  //     {
-  //       name: "Vitamin C",
-  //       dosage: "1000mg",
-  //       frequency: "Once daily",
-  //       duration: "7 days",
-  //       instructions: null
-  //     }
-  //   ],
-  //   labTests: ["CBC Blood Test"],
-  //   followUpDate: "2026-05-12",
-  //   warnings: ["Avoid cold drinks"],
-  //   interactions: [],
-  //   documentType: "prescription",
-  //   confidence: 91
-  // };
 };
 
-
-
-// ─────────────────────────────────────────────────────────────
-// FEATURE 5: Patient Risk Assessment
-// ─────────────────────────────────────────────────────────────
 export const assessPatientRiskService = async (
   patientName,
   recentSymptoms
@@ -480,7 +352,6 @@ export const assessPatientRiskService = async (
     throw new Error("patientName and recentSymptoms are required.");
   }
 
-  // 🔄 REAL CLAUDE CALL
   const formatted = recentSymptoms
     .slice(0, 7)
     .map(
@@ -499,52 +370,28 @@ export const assessPatientRiskService = async (
   Return ONLY this JSON structure:
   {
     "riskLevel": "low",
-    "riskScore": 22,
     "riskColor": "green",
     "riskBadge": "Low Risk",
     "topConcerns": ["specific concern 1", "specific concern 2"],
     "deterioratingPattern": false,
     "alertMessage": "One concise sentence alerting the doctor to the most important finding",
-    "recommendedAction": "Specific recommended action e.g. Schedule follow-up within 2 weeks",
-    "daysMonitored": 7
+    "recommendedAction": "Specific recommended action e.g. Schedule follow-up within 2 weeks"
   }
 
   Rules:
   - riskLevel: low | medium | high | critical
   - riskColor: green | yellow | orange | red
-  - riskScore: 0-100 integer
   - deterioratingPattern: true if symptoms are clearly worsening
   - topConcerns: specific symptoms or patterns
   - riskBadge: short UI-friendly label`;
 
-  return await callClaude(
+  return await callAIJson(
     [{ role: "user", content: prompt }],
     MODELS.default
   );
 
-  // ✅ MOCK RESPONSE
-  // return {
-  //   riskLevel: "medium",
-  //   riskScore: 58,
-  //   riskColor: "yellow",
-  //   riskBadge: "Medium Risk",
-  //   topConcerns: [
-  //     "Recurring headaches",
-  //     "Mood fluctuations",
-  //   ],
-  //   deterioratingPattern: true,
-  //   alertMessage:
-  //     "Symptoms appear to be increasing over recent days.",
-  //   recommendedAction:
-  //     "Schedule clinical follow-up within 3 days.",
-  //   daysMonitored: recentSymptoms.length,
-  // }; 
 };
 
-
-// ─────────────────────────────────────────────────────────────
-// FEATURE 6: Health Timeline
-// ─────────────────────────────────────────────────────────────
 export const generateHealthTimelineService = async (
   patientData,
   mode) => {
@@ -557,7 +404,7 @@ export const generateHealthTimelineService = async (
     name,
     symptoms = [],
     appointments = [],
-    medicines = [],
+    medicines = []
   } = patientData;
 
   const symptomSummary = symptoms
@@ -594,21 +441,19 @@ export const generateHealthTimelineService = async (
   ${appointments.length > 0 ? `\nAppointment History (${appointments.length} visits):\n${appointmentSummary}` : "\nNo appointments yet."}
   Medicines: ${medicineList}
 
-  Write their health story as a series of 3-5 meaningful "chapters". Each chapter represents a distinct phase of their health journey.
+  Summarize only actual dated entries. Use only as many chapters as the records support; return an empty chapters array if records are insufficient.
 
   Return ONLY this JSON (no other text):
   {
     "patientName": "${name}",
     "overallArc": "One sentence describing the overall health journey arc — like a book summary",
-    "healthScore": 72,
-    "healthGrade": "B+",
     "trend": "up",
     "trendReason": "Short reason why health is trending this direction",
     "chapters": [
       {
         "id": 1,
         "title": "Chapter title — evocative, like a book chapter",
-        "period": "e.g. Early November 2024",
+        "period": "Exact period from submitted records, or unknown",
         "type": "recovery",
         "headline": "One powerful sentence that captures this phase",
         "story": "2-3 sentences telling this chapter of their health story with warmth and clinical insight. Be specific to their actual data.",
@@ -626,94 +471,20 @@ export const generateHealthTimelineService = async (
   Rules:
   - chapter type must be one of: recovery, challenge, milestone, stable, concern, improvement
   - trend must be: up, down, or flat
-  - healthScore is 0-100
-  - healthGrade is A+/A/B+/B/C+/C/D/F
   - mood must be: improving, declining, stable
   - Be warm and human, not clinical and cold
-  - If data is sparse, write a hopeful "beginning of journey" narrative
-  - Never be alarmist — always frame challenges as opportunities`
+  - If data is sparse, explain what is missing; do not invent events or improvement
+  - Do not claim improvement, recovery, adherence or safety without supporting records`
 
-  // 🔄 REAL CLAUDE CALL
-  return await callClaude(
+  return await callAIJson(
     [{ role: "user", content: prompt }],
     MODELS.default,
     TIMELINE_SYSTEM_PROMPT,
     3000
   );
 
-  // ✅ TEMP MOCK RESPONSE
-  // return {
-  // patientName: patientData.name,
-  // overallArc: "Your health journey shows steady improvement with increasing self-awareness and consistent follow-up care.",
-  // healthScore: 78,
-  // healthGrade: "B+",
-  // trend: "up",
-  // trendReason: "Symptoms appear more controlled and health tracking has been consistent.",
-  // chapters: [
-  //   {
-  //     id: 1,
-  //     title: "The Beginning of Awareness",
-  //     period: "Early 2026",
-  //     type: "challenge",
-
-  //     headline:
-  //       "Recurring symptoms encouraged closer attention to personal health.",
-
-  //     story:
-  //       "Initial symptom patterns suggested periods of stress and fatigue. Logging symptoms consistently helped create a clearer understanding of health trends over time.",
-
-  //     keyEvents: [
-  //       "Started symptom tracking",
-  //       "Noticed recurring headaches",
-  //     ],
-  //     mood: "improving",
-  //     insight:
-  //       "Consistency in health tracking is helping identify patterns earlier.",
-  //   },
-
-  //   {
-  //     id: 2,
-  //     title: "Building Stability",
-  //     period: "Recent Weeks",
-  //     type: "improvement",
-
-  //     headline:
-  //       "Regular monitoring and appointments helped stabilize symptoms.",
-
-  //     story:
-  //       "Recent entries indicate better symptom awareness and healthier routines. Appointment follow-ups appear to be supporting gradual improvement.",
-
-  //     keyEvents: [
-  //       "Attended follow-up appointments",
-  //       "Maintained medicine adherence",
-  //     ],
-
-  //     mood: "stable",
-
-  //     insight:
-  //       "Continued follow-up and healthy routines may further improve long-term wellbeing.",
-  //   },
-  // ],
-
-  // aiMessage: "You've shown encouraging consistency in monitoring your health. Small, steady habits are creating meaningful progress over time.",
-  // nextChapter: "With continued tracking and timely care, the next stage of your health journey may become more stable and predictable.",
-  // strengths: [
-  //   "Consistent symptom tracking",
-  //   "Improved self-awareness",
-  //   "Following medical guidance",
-  // ],
-
-  // watchPoints: [
-  //   "Monitor recurring fatigue",
-  //   "Continue regular follow-ups",
-  // ],
-  // };
 };
 
-
-// ─────────────────────────────────────────────────────────────
-// FEATURE 7: Generate Clinical Brief
-// ─────────────────────────────────────────────────────────────
 export const generateClinicalBriefService = async (
   patient,
   appointments = [],
@@ -765,7 +536,6 @@ export const generateClinicalBriefService = async (
         "differentials": [
           {
             "condition": "Most likely condition",
-            "probability": "High",
             "reasoning": "Brief clinical reasoning"
           }
         ],
@@ -779,74 +549,16 @@ export const generateClinicalBriefService = async (
         "lastVisitSummary": "What happened at last visit or null"
       }
 
-      priorityLevel: routine | urgent | critical
-      probability: High | Moderate | Low`;
+      priorityLevel: routine | urgent | critical`;
 
-
-    // 🔄 REAL CLAUDE CALL
-    return await callClaude(
+    return await callAIJson(
       [{ role: "user", content: prompt }],
       MODELS.default,
       CLINICAL_BRIEF_SYSTEM_PROMPT
-    );  
+    );
 
-
-  // Mock Return
-  // return {
-  //   clinicalSummary:
-  //     "Patient shows recurring fatigue and headache patterns with stable vitals overall.",
-
-  //   redFlags: [
-  //     "Persistent headaches for multiple days"
-  //   ],
-
-  //   differentials: [
-  //     {
-  //       condition: "Migraine",
-  //       probability: "High",
-  //       reasoning:
-  //         "Headache pattern and symptom history are clinically consistent."
-  //     },
-  //     {
-  //       condition: "Tension Headache",
-  //       probability: "Moderate",
-  //       reasoning:
-  //         "Stress-related symptom overlap present."
-  //     }
-  //   ],
-
-  //   recommendedTests: [
-  //     "CBC",
-  //     "Blood Pressure Monitoring",
-  //     "Vitamin D Test"
-  //   ],
-
-  //   currentMedications: [
-  //     "Paracetamol"
-  //   ],
-
-  //   drugInteractionRisk: false,
-
-  //   drugInteractionNote: null,
-
-  //   priorityLevel: "routine",
-
-  //   priorityReason:
-  //     "Symptoms appear manageable but require follow-up.",
-
-  //   talkingPoints: [
-  //     "Discuss headache frequency",
-  //     "Review sleep quality"
-  //   ],
-
-  //   lastVisitSummary:
-  //     "Previous visit involved fatigue and mild headache concerns."
-  // };
 };
 
-// ─────────────────────────────────────────────────────────────
-// FEATURE 8: Generate SOAP note service
-// ─────────────────────────────────────────────────────────────
 export const generateSOAPNoteService = async (
   patient,
   appointment
@@ -895,81 +607,14 @@ export const generateSOAPNoteService = async (
         "icdDescription": "ICD code description"
       }`;
 
-  // 🔄 REAL CLAUDE CALL
-  return await callClaude(
+  return await callAIJson(
     [{ role: "user", content: prompt }],
     MODELS.default,
     SOAP_SYSTEM_PROMPT
   );
 
-  // Mock Return 
-  // return {
-  //   subjective: {
-  //     chiefComplaint:
-  //       "Recurring headaches and fatigue",
-
-  //     historyOfPresentIllness:
-  //       "Patient reports intermittent headaches over the last several days associated with mild fatigue.",
-
-  //     reviewOfSystems: [
-  //       "Headache present",
-  //       "No fever",
-  //       "No vomiting"
-  //     ]
-  //   },
-
-  //   objective: {
-  //     vitalSigns: "Stable",
-
-  //     physicalExam:
-  //       "No acute distress observed.",
-
-  //     labResults:
-  //       "Pending"
-  //   },
-
-  //   assessment: {
-  //     primaryDiagnosis:
-  //       "Migraine",
-
-  //     differentialDiagnoses: [
-  //       "Tension headache",
-  //       "Sinus headache"
-  //     ],
-
-  //     clinicalImpression:
-  //       "Symptoms most consistent with migraine without alarming neurological findings."
-  //   },
-
-  //   plan: {
-  //     medications: [
-  //       "Paracetamol 500mg"
-  //     ],
-
-  //     investigations: [
-  //       "CBC"
-  //     ],
-
-  //     followUp:
-  //       "Review in 5 days if symptoms persist.",
-
-  //     patientEducation:
-  //       "Advised hydration and proper sleep hygiene.",
-
-  //     referrals: []
-  //   },
-
-  //   icdCode: "G43.909",
-
-  //   icdDescription:
-  //     "Migraine, unspecified"
-  // };
 };
 
-
-// ─────────────────────────────────────────────────────────────
-// FEATURE 9: Generate Pre-Appointment service
-// ─────────────────────────────────────────────────────────────
 export const generatePreAppointmentBriefService = async (
   appointment,
   recentSymptoms = []
@@ -987,7 +632,6 @@ export const generatePreAppointmentBriefService = async (
       `${s.date}: ${s.symptoms} (mood: ${s.mood})`
     )
     .join("\n");
-
 
   const PRE_APPOINTMENT_SYSTEM_PROMPT = `
     You are CareAI, a caring health assistant.
@@ -1030,55 +674,14 @@ Return ONLY this JSON:
 urgentFlag: true if symptoms suggest something needing urgent discussion
 urgentMessage: message to patient if urgentFlag is true, else null`;
 
-  // 🔄 REAL CLAUDE CALL
-  return await callClaude(
+  return await callAIJson(
     [{ role: "user", content: prompt }],
     MODELS.default,
     PRE_APPOINTMENT_SYSTEM_PROMPT
   );
 
-  // ✅ TEMP MOCK RESPONSE
-  // return {
-  //   greeting:
-  //     "You're well prepared for your upcoming appointment.",
-
-  //   keySymptomsToBring: [
-  //     "Headache frequency",
-  //     "Fatigue levels"
-  //   ],
-
-  //   questionsToAsk: [
-  //     "What may be causing these headaches?",
-  //     "Do I need additional tests?",
-  //     "Are lifestyle changes recommended?"
-  //   ],
-
-  //   doBeforeAppointment: [
-  //     "Bring previous prescriptions",
-  //     "Stay hydrated before visit"
-  //   ],
-
-  //   whatToExpect:
-  //     "Your doctor will likely review symptoms, ask about duration, and may recommend tests.",
-
-  //   bringWith: [
-  //     "Government ID",
-  //     "Medication list"
-  //   ],
-
-  //   symptomSummary:
-  //     "Recent symptoms mainly involve headaches and tiredness.",
-
-  //   urgentFlag: false,
-
-  //   urgentMessage: null
-  // };
 };
 
-
-// ─────────────────────────────────────────────────────────────
-// FEATURE 10: Diagnosis Assist service
-// ─────────────────────────────────────────────────────────────
 export const generateDiagnosisAssistService = async (
   patient,
   symptoms = []
@@ -1102,14 +705,13 @@ export const generateDiagnosisAssistService = async (
     Recent Symptom History:
     ${symptomSummary || "No symptom data available"}
 
-    Generate evidence-based differential diagnoses ranked by clinical probability.
+    Generate evidence-based differential diagnoses without numerical probabilities; all suggestions require clinician verification.
 
     Return ONLY this JSON:
     {
       "primaryDiagnosis": {
         "name": "Most likely diagnosis",
         "icdCode": "ICD-10 code",
-        "probability": 78,
         "clinicalBasis": "Why this is most likely based on symptoms",
         "keyFindings": ["finding supporting this diagnosis"],
         "firstLineManagement": "Standard first-line treatment"
@@ -1118,7 +720,6 @@ export const generateDiagnosisAssistService = async (
         {
           "name": "Second likely diagnosis",
           "icdCode": "ICD-10 code",
-          "probability": 45,
           "distinguishingFeature": "What makes this different from primary",
           "rulingOutTest": "Test to rule this out"
         }
@@ -1134,78 +735,10 @@ export const generateDiagnosisAssistService = async (
       "referralNeeded": false,
       "referralSpecialty": null }`;
 
-  // 🔄 REAL CLAUDE CALL
-  return await callClaude(
+  return await callAIJson(
     [{ role: "user", content: prompt }],
     MODELS.default,
     DIAGNOSIS_ASSIST_SYSTEM_PROMPT
   );
-  
 
-  // ✅ TEMP MOCK RESPONSE
-  // return {
-  //   primaryDiagnosis: {
-  //     name: "Migraine",
-
-  //     icdCode: "G43.909",
-
-  //     probability: 78,
-
-  //     clinicalBasis:
-  //       "Pattern of recurring headaches strongly suggests migraine.",
-
-  //     keyFindings: [
-  //       "Recurring headache history",
-  //       "Fatigue association"
-  //     ],
-
-  //     firstLineManagement:
-  //       "Hydration, rest, trigger avoidance, analgesics"
-  //   },
-
-  //   differentials: [
-  //     {
-  //       name: "Tension Headache",
-
-  //       icdCode: "G44.209",
-
-  //       probability: 45,
-
-  //       distinguishingFeature:
-  //         "Typically stress related with band-like pain.",
-
-  //       rulingOutTest:
-  //         "Clinical evaluation"
-  //     }
-  //   ],
-
-  //   mustRuleOut: {
-  //     condition:
-  //       "Intracranial pathology",
-
-  //     reason:
-  //       "Persistent headaches may rarely indicate serious disease.",
-
-  //     urgentTest:
-  //       "MRI Brain"
-  //   },
-
-  //   suggestedInvestigations: [
-  //     "CBC",
-  //     "MRI Brain",
-  //     "Blood Pressure Monitoring"
-  //   ],
-
-  //   redFlagSymptoms: [
-  //     "Sudden severe headache",
-  //     "Vision changes"
-  //   ],
-
-  //   clinicalPearl:
-  //     "Migraine diagnosis is often clinical and pattern-based.",
-
-  //   referralNeeded: false,
-
-  //   referralSpecialty: null
-  // };
 };

@@ -99,15 +99,15 @@ export default function ServiceSection() {
   }, [location]);
 
   const patientServices = [
-    { icon: "🩺", title: "Find Doctors", desc: "Browse verified specialists and book consultations instantly.", link: "/doctors-list", btnText: "Find a Doctor", accent: "#1a5f9e" },
+    { icon: "🩺", title: "Find Doctors", desc: "Browse registered doctor profiles and request an appointment.", link: "/doctors-list", btnText: "Find a Doctor", accent: "#1a5f9e" },
     { icon: "📈", title: "Symptom Tracker", desc: "Log daily health metrics and receive AI-powered wellness insights.", link: "/symptom", btnText: "Track Now", accent: "#e11d48" },
-    { icon: "🤖", title: "CareAI Health Assistant", desc: "Chat with our intelligent health bot for instant guidance, 24/7.", link: "/chatbot", btnText: "Start Chat", accent: "#0a7e6e" },
+    { icon: "🤖", title: "CareAI Health Assistant", desc: "Get AI-assisted information when the provider is available.", link: "/chatbot", btnText: "Start Chat", accent: "#0a7e6e" },
     { icon: "🌿", title: "Wellness Hub", desc: "Yoga sessions, meditation guides, and curated health articles.", link: "/activities", btnText: "Explore", accent: "#b45309" },
     { icon: "🔒", title: "Medical Records", desc: "Upload, store, and manage your prescriptions and reports securely.", link: "/docUpload", btnText: "Manage Files", accent: "#7c3aed" },
   ];
 
   const doctorServices = [
-    { icon: "📊", title: "Doctor Dashboard", desc: "Overview of your practice metrics, ratings, and patient activity.", link: "/doctor/dashboard", btnText: "Go to Dashboard", accent: "#4f46e5" },
+    { icon: "📊", title: "Doctor Dashboard", desc: "Overview of your saved appointments and patient activity.", link: "/doctor/dashboard", btnText: "Go to Dashboard", accent: "#4f46e5" },
     { icon: "📅", title: "Manage Appointments", desc: "View and manage upcoming consultations and your schedule.", link: "/doctor/dashboard", btnText: "View Schedule", accent: "#1a5f9e" },
     { icon: "📂", title: "Patient Records", desc: "Securely access patient history and uploaded medical documents.", link: "#", btnText: "Access Records", accent: "#0a7e6e" },
   ];
