@@ -12,7 +12,7 @@ import { Sparkles, Calendar, ChevronDown, Mic, MicOff, TrendingUp, TrendingDown,
 import { predictDisease } from "../../services/aiService";
 
 // ── Design tokens ─────────────────────────────────────────────
-const FF   = "'DM Sans', 'Segoe UI', sans-serif";
+const FF   = "'Segoe UI', Arial, sans-serif";
 const NAVY = "#0d1b2a";
 const TEAL = "#0a7e6e";
 
@@ -80,21 +80,21 @@ function AISuggestionCard({ suggestion, mood, onClose }) {
       exit={{ opacity: 0, y: -10 }}
       style={{
         background: "white",
-        borderRadius: 20,
+        borderRadius: 12,
         border: `1.5px solid ${md.color}25`,
-        boxShadow: `0 8px 32px ${md.color}15`,
+        boxShadow: "none",
         overflow: "hidden",
         marginTop: 14,
       }}
     >
       {/* Header */}
-      <div style={{ background: `linear-gradient(135deg, ${md.color}15, ${md.color}05)`, padding: "14px 18px", borderBottom: `1px solid ${md.color}15`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ background: `${md.color}15`, padding: "14px 18px", borderBottom: `1px solid ${md.color}15`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 30, height: 30, borderRadius: 9, background: `linear-gradient(135deg, ${md.color}, ${md.color}cc)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 30, height: 30, borderRadius: 9, background: md.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Sparkles size={14} color="white" />
           </div>
           <div>
-            <p style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "0.82rem" }}>✦ AI-Assisted Analysis</p>
+            <p style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "0.82rem" }}>AI-assisted review</p>
             <p style={{ color: "#94a3b8", fontSize: "0.65rem", margin: 0 }}>Personalized for your entry</p>
           </div>
         </div>
@@ -139,7 +139,7 @@ function AISuggestionCard({ suggestion, mood, onClose }) {
         </div>
 
         {/* Encouragement */}
-        <div style={{ background: `linear-gradient(135deg, ${NAVY}08, ${TEAL}08)`, borderRadius: 11, padding: "10px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ background: `${NAVY}08`, borderRadius: 11, padding: "10px 14px", display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: "1rem" }}>{md.emoji}</span>
           <p style={{ fontSize: "0.78rem", color: "#334155", margin: 0, fontWeight: 500, lineHeight: 1.5 }}>{suggestion.encouragement}</p>
         </div>
@@ -171,11 +171,11 @@ function EntryCard({ entry, index, defaultExpanded = false }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      style={{ background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 2px 12px rgba(0,0,0,0.04)", overflow: "hidden" }}
+      style={{ background: "white", borderRadius: 12, border: "1px solid #e8edf2", boxShadow: "none", overflow: "hidden" }}
     >
       {/* Left accent bar */}
       <div style={{ display: "flex" }}>
-        <div style={{ width: 4, background: `linear-gradient(to bottom, ${md.color}, ${md.color}40)`, flexShrink: 0 }} />
+        <div style={{ width: 4, background: md.color, flexShrink: 0 }} />
         <div style={{ flex: 1, padding: "1.2rem 1.4rem" }}>
 
           {/* Top row */}
@@ -389,7 +389,7 @@ export default function SymptomTracker() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #f0f9f7 0%, #ffffff 60%, #eef4fb 100%)", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
+    <div style={{ minHeight: "100vh", background: "#f7f9fa", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
 
         {/* ── Page Header ── */}
@@ -399,13 +399,13 @@ export default function SymptomTracker() {
               <h1 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, color: NAVY, letterSpacing: "-0.03em", margin: 0 }}>
                 Health Journal
               </h1>
-              <p style={{ color: "#64748b", marginTop: 5, margin: "5px 0 0" }}>Log your daily health and get clinically-informed insights via CareAI.</p>
+              <p style={{ color: "#64748b", marginTop: 5, margin: "5px 0 0" }}>Record symptoms and notes for your next appointment.</p>
             </div>
 
             {/* Stats bar */}
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               {/* Streak */}
-              <div style={{ background: "white", borderRadius: 14, padding: "10px 16px", border: "1px solid #e8edf2", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+              <div style={{ background: "white", borderRadius: 14, padding: "10px 16px", border: "1px solid #e8edf2", display: "flex", alignItems: "center", gap: 8, boxShadow: "none" }}>
                 <Flame size={16} color="#f59e0b" />
                 <div>
                   <p style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "1rem", lineHeight: 1 }}>{streak}</p>
@@ -414,7 +414,7 @@ export default function SymptomTracker() {
               </div>
 
               {/* Total entries */}
-              <div style={{ background: "white", borderRadius: 14, padding: "10px 16px", border: "1px solid #e8edf2", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+              <div style={{ background: "white", borderRadius: 14, padding: "10px 16px", border: "1px solid #e8edf2", display: "flex", alignItems: "center", gap: 8, boxShadow: "none" }}>
                 <BookOpen size={16} color={TEAL} />
                 <div>
                   <p style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "1rem", lineHeight: 1 }}>{entries.length}</p>
@@ -423,7 +423,7 @@ export default function SymptomTracker() {
               </div>
 
               {/* Mood trend */}
-              <div style={{ background: "white", borderRadius: 14, padding: "10px 16px", border: "1px solid #e8edf2", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+              <div style={{ background: "white", borderRadius: 14, padding: "10px 16px", border: "1px solid #e8edf2", display: "flex", alignItems: "center", gap: 8, boxShadow: "none" }}>
                 {trend === "up"   ? <TrendingUp size={16} color="#16a34a" /> :
                  trend === "down" ? <TrendingDown size={16} color="#dc2626" /> :
                  <Minus size={16} color="#94a3b8" />}
@@ -446,7 +446,7 @@ export default function SymptomTracker() {
             <motion.div
               initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
-              style={{ background: "white", borderRadius: 22, padding: "1.8rem", border: "1px solid #e8edf2", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}
+              style={{ background: "white", borderRadius: 12, padding: "1.8rem", border: "1px solid #e8edf2", boxShadow: "none" }}
             >
               <h2 style={{ fontWeight: 800, color: NAVY, margin: "0 0 1.4rem", fontSize: "1rem" }}>Log Today's Health</h2>
 
@@ -525,15 +525,15 @@ export default function SymptomTracker() {
                     padding: "13px",
                     borderRadius: 13,
                     background: formData.mood && formData.symptoms
-                      ? `linear-gradient(135deg, ${selectedMood.color}, ${selectedMood.color}cc)`
-                      : "linear-gradient(135deg, #0a7e6e, #0d9488)",
+                      ? selectedMood.color
+                      : "#0a7e6e",
                     color: "white",
                     fontWeight: 800,
                     fontSize: "0.9rem",
                     border: "none",
                     cursor: submitting || aiLoading ? "not-allowed" : "pointer",
                     fontFamily: FF,
-                    boxShadow: `0 6px 20px ${formData.mood ? selectedMood.color : TEAL}30`,
+                    boxShadow: "none",
                     opacity: submitting || aiLoading ? 0.8 : 1,
                     transition: "all 0.3s",
                     display: "flex",
@@ -567,7 +567,7 @@ export default function SymptomTracker() {
             </div>
 
             {entries.length === 0 ? (
-              <div style={{ background: "white", borderRadius: 20, padding: "4rem", textAlign: "center", color: "#94a3b8", border: "2px dashed #e2e8f0" }}>
+              <div style={{ background: "white", borderRadius: 12, padding: "4rem", textAlign: "center", color: "#94a3b8", border: "2px dashed #e2e8f0" }}>
                 <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📋</div>
                 <p style={{ fontWeight: 700, margin: "0 0 6px", color: NAVY }}>No entries yet</p>
                 <p style={{ fontSize: "0.82rem", margin: 0 }}>Start logging your health to get personalized AI insights.</p>

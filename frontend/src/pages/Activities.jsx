@@ -21,10 +21,10 @@ function SectionCard({ title, emoji, children, accent = "#0a7e6e" }) {
       transition={{ duration: 0.5 }}
       style={{
         background: "white",
-        borderRadius: 20,
+        borderRadius: 12,
         padding: "1.8rem",
         border: "1px solid #e8edf2",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+        boxShadow: "none",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "1.4rem" }}>
@@ -55,8 +55,8 @@ export default function Activities() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(160deg, #f0f9f7 0%, #ffffff 60%, #eef4fb 100%)",
-        fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+        background: "#f7f9fa",
+        fontFamily: "'Segoe UI', Arial, sans-serif",
         paddingTop: "6.5rem",
         paddingBottom: "4rem",
       }}
@@ -153,7 +153,7 @@ export default function Activities() {
           <SectionCard title="Yoga Sessions" emoji="🧘" accent="#7c3aed">
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {yogaVideos.map((id) => (
-                <div key={id} style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
+                <div key={id} style={{ borderRadius: 14, overflow: "hidden", boxShadow: "none" }}>
                   <iframe
                     style={{ width: "100%", aspectRatio: "16/9", display: "block", border: "none" }}
                     src={`https://www.youtube.com/embed/${id}`}
@@ -169,7 +169,7 @@ export default function Activities() {
           <SectionCard title="Self Care" emoji="🌿" accent="#b45309">
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {wellnessVideos.map((id) => (
-                <div key={id} style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
+                <div key={id} style={{ borderRadius: 14, overflow: "hidden", boxShadow: "none" }}>
                   <iframe
                     style={{ width: "100%", aspectRatio: "16/9", display: "block", border: "none" }}
                     src={`https://www.youtube.com/embed/${id}`}
@@ -189,8 +189,8 @@ export default function Activities() {
           viewport={{ once: true }}
           style={{
             marginTop: 32,
-            background: "linear-gradient(135deg, #0d1b2a, #0a3d35)",
-            borderRadius: 20,
+            background: "#0d1b2a",
+            borderRadius: 12,
             padding: "2.5rem",
             display: "flex",
             flexWrap: "wrap",
@@ -222,8 +222,8 @@ export default function Activities() {
                 fontSize: "0.875rem",
                 border: "none",
                 cursor: "pointer",
-                fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
-                boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                fontFamily: "'Segoe UI', Arial, sans-serif",
+                boxShadow: "none",
                 whiteSpace: "nowrap",
               }}
             >

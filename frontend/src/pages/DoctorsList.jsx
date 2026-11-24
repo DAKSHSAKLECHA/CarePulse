@@ -16,12 +16,12 @@ const inputStyle = {
   fontSize: "0.875rem",
   color: "#0d1b2a",
   outline: "none",
-  fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+  fontFamily: "'Segoe UI', Arial, sans-serif",
   boxSizing: "border-box",
   transition: "border-color 0.2s",
 };
 
-const FF   = "'DM Sans', 'Segoe UI', sans-serif";
+const FF   = "'Segoe UI', Arial, sans-serif";
 const TEAL = "#0a7e6e";
 const NAVY = "#0d1b2a";
 
@@ -86,7 +86,7 @@ export default function DoctorsList() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(160deg, #f0f9f7 0%, #ffffff 60%, #eef4fb 100%)",
+      background: "#f7f9fa",
       fontFamily: FF,
       paddingTop: "6rem",
       paddingBottom: "4rem",
@@ -97,7 +97,7 @@ export default function DoctorsList() {
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          style={{ textAlign: "center", marginBottom: "3.5rem" }}
+          style={{ textAlign: "left", marginBottom: "2rem" }}
         >
           <div style={{
             display: "inline-block",
@@ -112,7 +112,7 @@ export default function DoctorsList() {
             marginBottom: "1rem",
             border: "1px solid rgba(10,126,110,0.12)",
           }}>
-            Medical Professionals
+            Doctor directory
           </div>
           <h1 style={{
             fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
@@ -121,9 +121,9 @@ export default function DoctorsList() {
             letterSpacing: "-0.03em",
             margin: "0 0 0.75rem",
           }}>
-            Meet Our Specialists
+            Find a doctor
           </h1>
-          <p style={{ color: "#64748b", maxWidth: 500, margin: "0 auto", lineHeight: 1.65 }}>
+          <p style={{ color: "#64748b", maxWidth: 620, margin: 0, lineHeight: 1.65 }}>
             Browse registered doctor profiles and request an appointment. Credentials are self-reported.
           </p>
         </motion.div>
@@ -150,20 +150,20 @@ export default function DoctorsList() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                whileHover={{ y: -6, boxShadow: "0 20px 48px rgba(0,0,0,0.1)" }}
+                whileHover={{ y: -6, boxShadow: "none" }}
                 style={{
                   background: "white",
-                  borderRadius: 20,
+                  borderRadius: 12,
                   overflow: "hidden",
                   border: "1px solid #e8edf2",
-                  boxShadow: "0 4px 16px rgba(0,0,0,0.05)",
+                  boxShadow: "none",
                   transition: "all 0.28s ease",
                 }}
               >
                 {/* Avatar */}
                 <div style={{
                   height: 180,
-                  background: "linear-gradient(135deg, #0d1b2a, #0a3d35)",
+                  background: "#0d1b2a",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -176,9 +176,9 @@ export default function DoctorsList() {
                     background: "rgba(10,126,110,0.2)", filter: "blur(20px)",
                   }} />
                   <div style={{
-                    width: 90, height: 90, borderRadius: 24, overflow: "hidden",
+                    width: 90, height: 90, borderRadius: 12, overflow: "hidden",
                     border: "3px solid rgba(255,255,255,0.15)",
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.2)", position: "relative",
+                    boxShadow: "none", position: "relative",
                   }}>
                     <img src={getDoctorImage(doctor.name)} alt={doctor.name}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -217,14 +217,14 @@ export default function DoctorsList() {
                       width: "100%",
                       padding: "11px",
                       borderRadius: 12,
-                      background: `linear-gradient(135deg, ${TEAL}, #0d9488)`,
+                      background: TEAL,
                       color: "white",
                       fontWeight: 700,
                       fontSize: "0.88rem",
                       border: "none",
                       cursor: "pointer",
                       fontFamily: FF,
-                      boxShadow: `0 6px 18px rgba(10,126,110,0.25)`,
+                      boxShadow: "none",
                       transition: "opacity 0.2s",
                     }}
                   >
@@ -262,11 +262,11 @@ export default function DoctorsList() {
               onClick={e => e.stopPropagation()}
               style={{
                 background: "white",
-                borderRadius: 24,
+                borderRadius: 12,
                 padding: "2rem",
                 maxWidth: 500,
                 width: "100%",
-                boxShadow: "0 24px 64px rgba(0,0,0,0.2)",
+                boxShadow: "none",
                 maxHeight: "90vh",
                 overflowY: "auto",
               }}
@@ -324,11 +324,11 @@ export default function DoctorsList() {
               onClick={e => e.stopPropagation()}
               style={{
                 background: "white",
-                borderRadius: 24,
+                borderRadius: 12,
                 padding: "2.2rem",
                 maxWidth: 440,
                 width: "100%",
-                boxShadow: "0 24px 64px rgba(0,0,0,0.2)",
+                boxShadow: "none",
               }}
             >
               {/* Modal header */}
@@ -380,7 +380,7 @@ export default function DoctorsList() {
                 <button
                   onClick={handleBook}
                   disabled={submitting}
-                  style={{ flex: 2, padding: "12px", borderRadius: 12, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, color: "white", fontWeight: 700, fontSize: "0.9rem", border: "none", cursor: submitting ? "not-allowed" : "pointer", fontFamily: FF, boxShadow: `0 6px 20px rgba(10,126,110,0.3)`, opacity: submitting ? 0.7 : 1, transition: "opacity 0.2s" }}
+                  style={{ flex: 2, padding: "12px", borderRadius: 12, background: TEAL, color: "white", fontWeight: 700, fontSize: "0.9rem", border: "none", cursor: submitting ? "not-allowed" : "pointer", fontFamily: FF, boxShadow: "none", opacity: submitting ? 0.7 : 1, transition: "opacity 0.2s" }}
                 >
                   {submitting ? "Booking..." : "Confirm Appointment ✓"}
                 </button>

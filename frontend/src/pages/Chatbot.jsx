@@ -1,8 +1,9 @@
+import { MessageSquare, Send, LoaderCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { sendChatMessage } from "../../services/aiService";
 
-const FF   = "'DM Sans', 'Segoe UI', sans-serif";
+const FF   = "'Segoe UI', Arial, sans-serif";
 const TEAL = "#0a7e6e";
 const NAVY = "#0d1b2a";
 
@@ -15,7 +16,7 @@ const SUGGESTED = [
 
 function TypingDots() {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "14px 18px", background: "white", borderRadius: "18px 18px 18px 4px", border: "1px solid #e8edf2", width: "fit-content", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "14px 18px", background: "white", borderRadius: "18px 18px 18px 4px", border: "1px solid #e8edf2", width: "fit-content", boxShadow: "none" }}>
       {[0, 1, 2].map(i => (
         <motion.div key={i}
           animate={{ y: [0, -5, 0] }}
@@ -56,8 +57,8 @@ function MessageBubble({ msg, index }) {
     >
       {/* Bot avatar */}
       {!isUser && (
-        <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", flexShrink: 0, marginRight: 8, alignSelf: "flex-end", boxShadow: `0 4px 10px ${TEAL}30` }}>
-          🤖
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", flexShrink: 0, marginRight: 8, alignSelf: "flex-end", boxShadow: "none" }}>
+          <MessageSquare size={18} color="white"/>
         </div>
       )}
 
@@ -65,7 +66,7 @@ function MessageBubble({ msg, index }) {
         maxWidth: "75%",
         padding: "12px 16px",
         borderRadius: isUser ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-        background: isUser ? `linear-gradient(135deg, ${TEAL}, #0d9488)` : "white",
+        background: isUser ? TEAL : "white",
         color: isUser ? "white" : NAVY,
         fontSize: "0.875rem",
         lineHeight: 1.6,
@@ -83,7 +84,7 @@ function MessageBubble({ msg, index }) {
 
       {/* User avatar */}
       {isUser && (
-        <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, #4f46e5, #6366f1)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", flexShrink: 0, marginLeft: 8, alignSelf: "flex-end", fontWeight: 800, color: "white" }}>
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", flexShrink: 0, marginLeft: 8, alignSelf: "flex-end", fontWeight: 800, color: "white" }}>
           {(JSON.parse(localStorage.getItem("user") || "{}").name || "U").charAt(0).toUpperCase()}
         </div>
       )}
@@ -93,7 +94,7 @@ function MessageBubble({ msg, index }) {
 
 export default function Chatbot() {
   const [messages,  setMessages]  = useState([{
-    text: "Hello! I'm **CareAI**, your intelligent clinical health assistant.\n\nI can help you understand symptoms, explain medical terms, and guide you on when to see a doctor.\n\n⚠️ CareAI provides health guidance — always consult a real doctor for medical decisions.",
+    text: "Hi, I’m CareAI. Ask me about a health term, or help preparing questions for your doctor. My responses can be inaccurate and do not replace medical advice.",
     sender: "bot",
     time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
   }]);
@@ -137,7 +138,7 @@ export default function Chatbot() {
       const errorMsg = err.message?.includes("API key") || err.message?.includes("401")
         ? "⚠️ The AI service is temporarily unavailable. Please try again later."
         : err.message?.includes("fetch") || err.message?.includes("network")
-        ? "⚠️ Cannot reach backend. Make sure your Express server is running."
+        ? "⚠️ Could not connect. Please check your connection and try again."
         : `⚠️ Error: ${err.message}`;
 
       setMessages(prev => [...prev, { text: errorMsg, sender: "bot", time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) }]);
@@ -149,7 +150,7 @@ export default function Chatbot() {
 
   const clearChat = () => {
     setMessages([{
-      text: "Chat cleared! How can I help you today? 🌿",
+      text: "This conversation has been cleared. What would you like to ask?",
       sender: "bot",
       time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
     }]);
@@ -157,21 +158,21 @@ export default function Chatbot() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #f0f9f7 0%, #ffffff 60%, #eef4fb 100%)", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "2rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div style={{ minHeight: "100vh", background: "#f7f9fa", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "2rem", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <div style={{ width: "100%", maxWidth: 720, padding: "0 1rem", display: "flex", flexDirection: "column", height: "calc(100vh - 7.5rem)" }}>
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          style={{ background: `linear-gradient(135deg, ${NAVY}, #0a3d35)`, borderRadius: "20px 20px 0 0", padding: "1.2rem 1.6rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          style={{ background: NAVY, borderRadius: "20px 20px 0 0", padding: "1.2rem 1.6rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(10,126,110,0.3)", border: "1px solid rgba(10,126,110,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>
-              🤖
+              <MessageSquare size={18} color="white"/>
             </div>
             <div>
               <p style={{ color: "white", fontWeight: 800, margin: 0, fontSize: "1rem", letterSpacing: "-0.01em" }}>CareAI</p>
               <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", animation: "pulse 2s ease-in-out infinite" }} />
-                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.7rem", margin: 0, fontWeight: 500 }}>✦ AI-Assisted Analysis · Online</p>
+                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.7rem", margin: 0, fontWeight: 500 }}>AI assistant · Responses may be inaccurate</p>
               </div>
             </div>
           </div>
@@ -190,7 +191,7 @@ export default function Chatbot() {
 
           {isTyping && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", alignItems: "flex-end", gap: 8, marginBottom: 10 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", flexShrink: 0 }}>🤖</div>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", flexShrink: 0 }}><MessageSquare size={18} color="white"/></div>
               <TypingDots />
             </motion.div>
           )}
@@ -246,20 +247,20 @@ export default function Chatbot() {
             disabled={isTyping || !input.trim()}
             style={{
               width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-              background: isTyping || !input.trim() ? "#f1f5f9" : `linear-gradient(135deg, ${TEAL}, #0d9488)`,
+              background: isTyping || !input.trim() ? "#f1f5f9" : TEAL,
               border: "none", cursor: isTyping || !input.trim() ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: "1.1rem", boxShadow: input.trim() && !isTyping ? `0 4px 14px ${TEAL}30` : "none",
               transition: "all 0.2s",
             }}
           >
-            {isTyping ? "⏳" : "🚀"}
+            {isTyping ? <LoaderCircle size={18}/> : <Send size={18}/>}
           </button>
         </div>
 
         {/* Disclaimer */}
         <p style={{ textAlign: "center", fontSize: "0.65rem", color: "#94a3b8", margin: "8px 0 0", lineHeight: 1.5 }}>
-          ⚠️ ⚕️ CareAI provides clinically-informed guidance only. Always consult a qualified doctor for medical advice.
+          For general information. Consult a qualified clinician for medical advice.
         </p>
       </div>
 

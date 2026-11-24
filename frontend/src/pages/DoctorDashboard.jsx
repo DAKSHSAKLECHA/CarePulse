@@ -17,8 +17,8 @@ import {
 } from "lucide-react";
 
 // ─── CONSTANTS ────────────────────────────────────────────────
-const FF     = "'DM Sans', 'Segoe UI', sans-serif";
-const INDIGO = "#4f46e5";
+const FF     = "'Segoe UI', Arial, sans-serif";
+const INDIGO = "#0a7367";
 const TEAL   = "#0a7e6e";
 const NAVY   = "#0d1b2a";
 
@@ -42,8 +42,8 @@ const DEFAULT_SCHEDULE = Object.fromEntries(["Mon","Tue","Wed","Thu","Fri","Sat"
 
 // ─── SHARED UI HELPERS ────────────────────────────────────────
 const card = {
-  background: "white", borderRadius: 20,
-  border: "1px solid #e8edf2", boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+  background: "white", borderRadius: 12,
+  border: "1px solid #e8edf2", boxShadow: "none",
 };
 
 function Badge({ status }) {
@@ -74,7 +74,7 @@ const inputSt = {
 function ChartTip({ active, payload, label, suffix = "" }) {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: "10px 14px", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", fontSize: "0.82rem", fontFamily: FF }}>
+    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 12, padding: "10px 14px", boxShadow: "none", fontSize: "0.82rem", fontFamily: FF }}>
       <p style={{ color: "#64748b", margin: "0 0 4px", fontWeight: 600 }}>{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color || INDIGO, fontWeight: 700, margin: 0 }}>{p.value}{suffix}</p>
@@ -266,7 +266,7 @@ function OverviewTab({ appointments, stats, setTab }) {
           { tab: "prescription", icon: "✍️", title: "Write Rx",      desc: "Digital prescriptions",   color: "#7c3aed" },
           { tab: "analytics",    icon: "📊", title: "Analytics",     desc: "Charts & insights",       color: "#b45309" },
         ].map((a, i) => (
-          <motion.div key={i} whileHover={{ y: -4, boxShadow: "0 12px 32px rgba(0,0,0,0.09)" }}
+          <motion.div key={i} whileHover={{ y: -4, boxShadow: "none" }}
             onClick={() => setTab(a.tab)}
             style={{ ...card, padding: "1.2rem", cursor: "pointer", transition: "all 0.25s" }}>
             <div style={{ fontSize: "1.4rem", marginBottom: 7 }}>{a.icon}</div>
@@ -364,7 +364,7 @@ function AppointmentsTab({ appointments, onUpdate, loading }) {
             style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(5px)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
             <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95 }}
               onClick={e => e.stopPropagation()}
-              style={{ ...card, padding: "2rem", maxWidth: 460, width: "100%", boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }}>
+              style={{ ...card, padding: "2rem", maxWidth: 460, width: "100%", boxShadow: "none" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.2rem" }}>
                 <div>
                   <h3 style={{ fontWeight: 800, color: NAVY, margin: 0 }}>Update Appointment</h3>
@@ -415,7 +415,7 @@ function PatientsTab({ patients, appointments, loading }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 12 }}>
             {patients.map((p, i) => (
               <motion.div key={p._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                whileHover={{ y: -4, boxShadow: "0 12px 32px rgba(0,0,0,0.09)" }}
+                whileHover={{ y: -4, boxShadow: "none" }}
                 onClick={() => setSelected(p)}
                 style={{ ...card, padding: "1.3rem", cursor: "pointer", transition: "all 0.25s" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 10 }}>
@@ -470,7 +470,7 @@ function PatientsTab({ patients, appointments, loading }) {
             style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(5px)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
             <motion.div initial={{ scale: 0.95, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95 }}
               onClick={e => e.stopPropagation()}
-              style={{ ...card, padding: "2rem", maxWidth: 540, width: "100%", boxShadow: "0 24px 60px rgba(0,0,0,0.2)", maxHeight: "85vh", overflowY: "auto" }}>
+              style={{ ...card, padding: "2rem", maxWidth: 540, width: "100%", boxShadow: "none", maxHeight: "85vh", overflowY: "auto" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.4rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 48, height: 48, borderRadius: 14, background: `${TEAL}10`, color: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "1.2rem" }}>
@@ -599,7 +599,7 @@ function PrescriptionTab({ patients }) {
             </div>
           </div>
 
-          <button onClick={generate} disabled={busy} style={{ padding: "12px", borderRadius: 12, background: busy ? "#f1f5f9" : `linear-gradient(135deg, ${INDIGO}, #6366f1)`, color: busy ? "#94a3b8" : "white", fontWeight: 700, fontSize: "0.9rem", border: "none", cursor: busy ? "not-allowed" : "pointer", fontFamily: FF, boxShadow: busy ? "none" : `0 6px 20px ${INDIGO}30`, transition: "all 0.2s" }}>
+          <button onClick={generate} disabled={busy} style={{ padding: "12px", borderRadius: 12, background: busy ? "#f1f5f9" : INDIGO, color: busy ? "#94a3b8" : "white", fontWeight: 700, fontSize: "0.9rem", border: "none", cursor: busy ? "not-allowed" : "pointer", fontFamily: FF, boxShadow: busy ? "none" : `0 6px 20px ${INDIGO}30`, transition: "all 0.2s" }}>
             {busy ? "Generating…" : "Generate Prescription →"}
           </button>
         </div>
@@ -608,7 +608,7 @@ function PrescriptionTab({ patients }) {
       {/* Preview */}
       {generated && (
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} style={{ ...card, padding: "2rem" }}>
-          <div style={{ background: `linear-gradient(135deg, ${NAVY}, #0a3d35)`, borderRadius: 14, padding: "1.1rem 1.3rem", marginBottom: "1.3rem", position: "relative", overflow: "hidden" }}>
+          <div style={{ background: NAVY, borderRadius: 14, padding: "1.1rem 1.3rem", marginBottom: "1.3rem", position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", top: -20, right: -20, width: 70, height: 70, borderRadius: "50%", background: "rgba(10,126,110,0.2)", filter: "blur(14px)" }} />
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", position: "relative" }}>
               <div>
@@ -657,7 +657,7 @@ function PrescriptionTab({ patients }) {
           {generated.followUp && <div style={{ background: "#eff6ff", borderRadius: 9, padding: "8px 11px", border: "1px solid rgba(29,78,216,0.12)", marginBottom: "1rem", fontSize: "0.78rem", color: "#1d4ed8" }}>📅 Follow-up: {generated.followUp}</div>}
 
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => window.print()} style={{ flex: 1, padding: "10px", borderRadius: 10, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, color: "white", fontWeight: 700, fontSize: "0.8rem", border: "none", cursor: "pointer", fontFamily: FF }}>🖨 Print</button>
+            <button onClick={() => window.print()} style={{ flex: 1, padding: "10px", borderRadius: 10, background: TEAL, color: "white", fontWeight: 700, fontSize: "0.8rem", border: "none", cursor: "pointer", fontFamily: FF }}>🖨 Print</button>
             <button onClick={() => { navigator.clipboard.writeText(generated.rxId); toast.success("ID copied!"); }} style={{ padding: "10px 14px", borderRadius: 10, background: "#f8fafc", border: "1px solid #e8edf2", color: "#4a6070", fontWeight: 700, fontSize: "0.8rem", cursor: "pointer", fontFamily: FF }}>📋</button>
           </div>
         </motion.div>
@@ -763,7 +763,7 @@ function ScheduleTab({ appointments }) {
         })}
       </div>
 
-      <button onClick={save} disabled={saving} style={{ padding: "12px 30px", borderRadius: 12, background: saved ? TEAL : `linear-gradient(135deg, ${INDIGO}, #6366f1)`, color: "white", fontWeight: 700, fontSize: "0.9rem", border: "none", cursor: saving ? "not-allowed" : "pointer", fontFamily: FF, boxShadow: `0 6px 20px ${INDIGO}28`, display: "flex", alignItems: "center", gap: 7, transition: "background 0.3s" }}>
+      <button onClick={save} disabled={saving} style={{ padding: "12px 30px", borderRadius: 12, background: saved ? TEAL : INDIGO, color: "white", fontWeight: 700, fontSize: "0.9rem", border: "none", cursor: saving ? "not-allowed" : "pointer", fontFamily: FF, boxShadow: "none", display: "flex", alignItems: "center", gap: 7, transition: "background 0.3s" }}>
         {saving ? "Saving…" : saved ? <><Check size={14} /> Saved!</> : "Save Schedule"}
       </button>
     </div>
@@ -894,7 +894,7 @@ function AnalyticsTab({ appointments, stats }) {
       </div>
 
       {/* Summary banner */}
-      <div style={{ background: `linear-gradient(135deg, ${NAVY}, #0a3d35)`, borderRadius: 20, padding: "1.8rem 2rem", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 16, position: "relative", overflow: "hidden" }}>
+      <div style={{ background: NAVY, borderRadius: 12, padding: "1.8rem 2rem", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 16, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, borderRadius: "50%", background: "rgba(10,126,110,0.15)", filter: "blur(28px)", pointerEvents: "none" }} />
         <div style={{ position: "relative" }}>
           <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.62rem", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 4px" }}>Practice Summary</p>
@@ -972,12 +972,12 @@ export default function DoctorDashboard() {
 
   if (loadError) return <div style={{padding:"8rem 1.5rem",maxWidth:900,margin:"0 auto"}}><h1 style={{fontSize:"1.6rem",fontWeight:700}}>Doctor dashboard</h1><p role="alert" style={{margin:"20px 0",color:"#9a3412"}}>{loadError}</p><button onClick={fetchAll} style={{padding:"10px 18px",background:"#0a7e6e",color:"white",borderRadius:10}}>Retry loading records</button></div>;
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #f0f4ff 0%, #ffffff 60%, #eef4fb 100%)", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
+    <div style={{ minHeight: "100vh", background: "#f7f9fa", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem" }}>
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", borderRadius: 24, padding: "2rem 2.5rem", marginBottom: 18, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16, position: "relative", overflow: "hidden" }}>
+          style={{ background: "#1e1b4b", borderRadius: 12, padding: "2rem 2.5rem", marginBottom: 18, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -60, right: -60, width: 240, height: 240, borderRadius: "50%", background: "rgba(99,102,241,0.18)", filter: "blur(60px)", pointerEvents: "none" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 14, position: "relative" }}>
             <div style={{ width: 50, height: 50, borderRadius: 14, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", flexShrink: 0 }}>👨‍⚕️</div>
@@ -1024,7 +1024,7 @@ export default function DoctorDashboard() {
         <div style={{ background: "white", borderRadius: 13, padding: 4, border: "1px solid #e8edf2", display: "flex", gap: 3, marginBottom: 18, flexWrap: "wrap" }}>
           {TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
-              style={{ padding: "7px 14px", borderRadius: 9, border: "none", fontFamily: FF, fontWeight: 700, fontSize: "0.77rem", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 5, background: tab === t.key ? `linear-gradient(135deg, ${INDIGO}, #6366f1)` : "transparent", color: tab === t.key ? "white" : "#64748b", boxShadow: tab === t.key ? `0 4px 12px ${INDIGO}28` : "none" }}>
+              style={{ padding: "7px 14px", borderRadius: 9, border: "none", fontFamily: FF, fontWeight: 700, fontSize: "0.77rem", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 5, background: tab === t.key ? INDIGO : "transparent", color: tab === t.key ? "white" : "#64748b", boxShadow: tab === t.key ? `0 4px 12px ${INDIGO}28` : "none" }}>
               {t.icon} {t.label}
               {t.key === "appointments" && pendingCount > 0 && (
                 <span style={{ background: "#e11d48", color: "white", borderRadius: 99, fontSize: "0.6rem", fontWeight: 800, padding: "1px 5px" }}>{pendingCount}</span>

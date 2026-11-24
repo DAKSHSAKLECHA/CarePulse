@@ -18,35 +18,35 @@ import { getTriageAssessment } from "../../services/aiService";
 import toast from "react-hot-toast";
 import { Activity, ChevronRight, AlertTriangle, CheckCircle, Phone, Clock, Home, Stethoscope, ArrowLeft } from "lucide-react";
 
-const FF   = "'DM Sans', 'Segoe UI', sans-serif";
+const FF   = "'Segoe UI', Arial, sans-serif";
 const NAVY = "#0d1b2a";
 
-const card = { background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" };
+const card = { background: "white", borderRadius: 12, border: "1px solid #e8edf2", boxShadow: "none" };
 
 const URGENCY_STYLES = {
   emergency: {
-    grad:   "linear-gradient(135deg, #7c2d12, #dc2626)",
+    grad:   "#7c2d12",
     color:  "#dc2626",
     bg:     "#fef2f2",
     icon:   "🚨",
     border: "rgba(220,38,38,0.2)",
   },
   urgent: {
-    grad:   "linear-gradient(135deg, #92400e, #b45309)",
+    grad:   "#92400e",
     color:  "#b45309",
     bg:     "#fffbeb",
     icon:   "⚠️",
     border: "rgba(180,83,9,0.2)",
   },
   routine: {
-    grad:   "linear-gradient(135deg, #1d4ed8, #4f46e5)",
+    grad:   "#1d4ed8",
     color:  "#1d4ed8",
     bg:     "#eff6ff",
     icon:   "📅",
     border: "rgba(29,78,216,0.2)",
   },
   self_care: {
-    grad:   "linear-gradient(135deg, #065f46, #0a7e6e)",
+    grad:   "#065f46",
     color:  "#0a7e6e",
     bg:     "#f0fdf9",
     icon:   "🏠",
@@ -102,7 +102,7 @@ function ProgressBar({ step, total }) {
       <div style={{ height: 6, borderRadius: 99, background: "#f1f5f9", overflow: "hidden" }}>
         <motion.div
           animate={{ width: `${(step / total) * 100}%` }} transition={{ duration: 0.4, ease: "easeOut" }}
-          style={{ height: "100%", borderRadius: 99, background: "linear-gradient(90deg, #4f46e5, #6366f1)" }}
+          style={{ height: "100%", borderRadius: 99, background: "#4f46e5" }}
         />
       </div>
     </div>
@@ -151,7 +151,7 @@ export default function AITriage({ onTriageComplete, onSkip }) {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
 
         {/* Urgency Banner */}
-        <div style={{ background: urgCfg.grad, borderRadius: 20, padding: "1.8rem 2rem", marginBottom: 18, position: "relative", overflow: "hidden" }}>
+        <div style={{ background: urgCfg.grad, borderRadius: 12, padding: "1.8rem 2rem", marginBottom: 18, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -40, right: -40, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.08)", filter: "blur(20px)" }} />
           <div style={{ position: "relative" }}>
             <div style={{ fontSize: "2rem", marginBottom: 8 }}>{urgCfg.icon}</div>
@@ -231,7 +231,7 @@ export default function AITriage({ onTriageComplete, onSkip }) {
         <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>
           <Activity size={40} color="#4f46e5" style={{ marginBottom: 16 }} />
         </motion.div>
-        <p style={{ fontWeight: 800, color: NAVY, margin: "0 0 6px", fontSize: "1rem" }}>✦ CareAI Clinical Assessment in Progress…</p>
+        <p style={{ fontWeight: 800, color: NAVY, margin: "0 0 6px", fontSize: "1rem" }}>Reviewing your answers…</p>
         <p style={{ color: "#94a3b8", fontSize: "0.82rem", margin: 0 }}>Assessing urgency level and recommendations</p>
       </div>
     );
@@ -249,7 +249,7 @@ export default function AITriage({ onTriageComplete, onSkip }) {
               {step.icon}
             </div>
             <div>
-              <p style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "0.95rem" }}>✦ CareAI Pre-Screening</p>
+              <p style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "0.95rem" }}>Before you book</p>
               <p style={{ color: "#94a3b8", fontSize: "0.72rem", margin: 0 }}>Quick 5-question pre-screening</p>
             </div>
           </div>
@@ -318,7 +318,7 @@ export default function AITriage({ onTriageComplete, onSkip }) {
         )}
         {step.type !== "select" && (
           <button onClick={next}
-            style={{ flex: 1, padding: "12px", borderRadius: 12, background: "linear-gradient(135deg, #4f46e5, #6366f1)", color: "white", fontWeight: 800, fontSize: "0.9rem", border: "none", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 6px 18px rgba(79,70,229,0.28)" }}>
+            style={{ flex: 1, padding: "12px", borderRadius: 12, background: "#4f46e5", color: "white", fontWeight: 800, fontSize: "0.9rem", border: "none", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "none" }}>
             {currentStep === STEPS.length - 1 ? "🧠 Analyze" : "Next"} <ChevronRight size={15} />
           </button>
         )}

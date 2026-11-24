@@ -12,7 +12,7 @@ import { predictDisease } from "../../services/aiService";
 import toast from "react-hot-toast";
 import { Brain, AlertTriangle, Shield, ChevronRight, RefreshCw } from "lucide-react";
 
-const FF   = "'DM Sans', 'Segoe UI', sans-serif";
+const FF   = "'Segoe UI', Arial, sans-serif";
 const TEAL = "#0a7e6e";
 const NAVY = "#0d1b2a";
 
@@ -25,13 +25,13 @@ const URGENCY_CONFIG = {
 };
 
 const RISK_CONFIG = {
-  unknown: {color:"#64748b",label:"Not assessed",grad:"linear-gradient(135deg,#64748b,#94a3b8)"},
-  low:    { color: "#16a34a", label: "Low Risk",      grad: "linear-gradient(135deg, #16a34a, #4ade80)" },
-  medium: { color: "#b45309", label: "Medium Risk",   grad: "linear-gradient(135deg, #b45309, #f59e0b)" },
-  high:   { color: "#dc2626", label: "High Risk",     grad: "linear-gradient(135deg, #dc2626, #f87171)" },
+  unknown: {color:"#64748b",label:"Not assessed",grad:"#64748b"},
+  low:    { color: "#16a34a", label: "Low Risk",      grad: "#16a34a" },
+  medium: { color: "#b45309", label: "Medium Risk",   grad: "#b45309" },
+  high:   { color: "#dc2626", label: "High Risk",     grad: "#dc2626" },
 };
 
-const card = { background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" };
+const card = { background: "white", borderRadius: 12, border: "1px solid #e8edf2", boxShadow: "none" };
 
 function PulseLoader() {
   return (
@@ -106,12 +106,12 @@ export default function SymptomPredictor() {
   const overallCfg = result ? RISK_CONFIG[result.overallRisk] || RISK_CONFIG.unknown : null;
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #f0f9f6 0%, #ffffff 60%, #f0f4ff 100%)", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
+    <div style={{ minHeight: "100vh", background: "#f7f9fa", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 1.5rem" }}>
 
         {/* ── Hero ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          style={{ background: `linear-gradient(135deg, ${NAVY} 0%, #0a3d35 100%)`, borderRadius: 24, padding: "2.2rem 2.5rem", marginBottom: 24, position: "relative", overflow: "hidden" }}>
+          style={{ background: NAVY, borderRadius: 12, padding: "2.2rem 2.5rem", marginBottom: 24, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: "50%", background: "rgba(10,126,110,0.2)", filter: "blur(50px)" }} />
           <div style={{ position: "absolute", bottom: -40, left: 100, width: 140, height: 140, borderRadius: "50%", background: "rgba(79,70,229,0.12)", filter: "blur(40px)" }} />
           <div style={{ position: "relative", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
@@ -120,7 +120,7 @@ export default function SymptomPredictor() {
                 <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(10,126,110,0.25)", border: "1px solid rgba(10,126,110,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Brain size={20} color="#4ade80" />
                 </div>
-                <span style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>✦ AI-Assisted Analysis</span>
+                <span style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>AI-assisted review</span>
               </div>
               <h1 style={{ color: "white", fontWeight: 800, fontSize: "clamp(1.4rem, 3vw, 2rem)", margin: "0 0 6px", letterSpacing: "-0.02em" }}>Symptom Prediction Engine</h1>
 
@@ -185,13 +185,13 @@ export default function SymptomPredictor() {
                   Log at least <strong>3 symptom entries</strong> in the Symptom Tracker before running AI analysis.
                   You currently have {symptoms.length}.
                 </p>
-                <a href="/symptom" style={{ padding: "12px 24px", borderRadius: 12, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, color: "white", fontWeight: 700, fontSize: "0.9rem", textDecoration: "none", display: "inline-block" }}>
+                <a href="/symptom" style={{ padding: "12px 24px", borderRadius: 12, background: TEAL, color: "white", fontWeight: 700, fontSize: "0.9rem", textDecoration: "none", display: "inline-block" }}>
                   Go to Symptom Tracker →
                 </a>
               </div>
             ) : (
               <div style={{ ...card, padding: "2.5rem 3rem" }}>
-                <div style={{ width: 64, height: 64, borderRadius: 18, background: `${TEAL}10`, border: `1px solid ${TEAL}20`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                <div style={{ width: 64, height: 64, borderRadius: 12, background: `${TEAL}10`, border: `1px solid ${TEAL}20`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                   <Brain size={28} color={TEAL} />
                 </div>
                 <h2 style={{ fontWeight: 800, color: NAVY, margin: "0 0 8px", fontSize: "1.2rem" }}>Ready to Analyze</h2>
@@ -199,7 +199,7 @@ export default function SymptomPredictor() {
                   AI will scan your {symptoms.length} symptom entries and identify possible health patterns and conditions.
                 </p>
                 <button onClick={runAnalysis}
-                  style={{ padding: "14px 36px", borderRadius: 14, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, color: "white", fontWeight: 800, fontSize: "1rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: `0 8px 24px ${TEAL}35`, letterSpacing: "-0.01em" }}>
+                  style={{ padding: "14px 36px", borderRadius: 14, background: TEAL, color: "white", fontWeight: 800, fontSize: "1rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: "none", letterSpacing: "-0.01em" }}>
                   🧠 Run AI Analysis
                 </button>
               </div>
@@ -227,7 +227,7 @@ export default function SymptomPredictor() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
 
               {/* Overall risk banner */}
-              <div style={{ background: overallCfg?.grad, borderRadius: 20, padding: "1.6rem 2rem", marginBottom: 20, display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 14 }}>
+              <div style={{ background: overallCfg?.grad, borderRadius: 12, padding: "1.6rem 2rem", marginBottom: 20, display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 14 }}>
                 <div>
                   <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 4px" }}>Overall Assessment</p>
                   <h2 style={{ color: "white", fontWeight: 800, fontSize: "1.4rem", margin: "0 0 4px", letterSpacing: "-0.02em" }}>{overallCfg?.label}</h2>
@@ -292,7 +292,7 @@ export default function SymptomPredictor() {
                   style={{ padding: "10px 22px", borderRadius: 12, background: "white", border: "1.5px solid #e2e8f0", color: "#64748b", fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 6 }}>
                   <RefreshCw size={14} /> Re-run Analysis
                 </button>
-                <a href="/my-appointments" style={{ padding: "10px 22px", borderRadius: 12, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, color: "white", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
+                <a href="/my-appointments" style={{ padding: "10px 22px", borderRadius: 12, background: TEAL, color: "white", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>
                   Book Appointment <ChevronRight size={14} />
                 </a>
               </div>

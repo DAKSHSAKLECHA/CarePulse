@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { LoaderCircle, UserRound, Stethoscope } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -13,21 +14,23 @@ const inputStyle = (accent) => ({
   fontSize: "0.9rem",
   color: "#0d1b2a",
   outline: "none",
-  fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+  fontFamily: "'Segoe UI', Arial, sans-serif",
   transition: "border-color 0.2s, box-shadow 0.2s",
   boxSizing: "border-box",
 });
 
-function Input({ type, name, placeholder, value, onChange, required, accent }) {
+function Input({ type, name, placeholder, value, onChange, required, accent, disabled }) {
   const [focused, setFocused] = useState(false);
   return (
     <input
       type={type}
       name={name}
       placeholder={placeholder}
+      aria-label={placeholder}
       value={value}
       onChange={onChange}
       required={required}
+      disabled={disabled}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       style={{
@@ -46,6 +49,8 @@ export default function AuthPage() {
     name: "", email: "", password: "", age: "", gender: "", specialization: "", experience: "",
   });
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const navigate = useNavigate();
 
   const isDoctor = role === "doctor";
@@ -54,6 +59,7 @@ export default function AuthPage() {
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleRoleSwitch = (newRole) => {
+    if (submittingRef.current) return;
     setRole(newRole);
     setIsLogin(true);
     setError("");
@@ -62,6 +68,9 @@ export default function AuthPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     setError("");
 
     // ✅ FIXED — relative URLs, no baseUrl, Vite proxy forwards to localhost:5000
@@ -87,6 +96,7 @@ export default function AuthPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(60000),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Something went wrong");
@@ -99,34 +109,37 @@ export default function AuthPage() {
           localStorage.setItem("patientId", JSON.stringify(data.user.id));
         }
         toast.success(isLogin ? "Welcome back!" : "Account created!");
-        navigate(data.user.role === "doctor" ? "/doctor/dashboard" : "/");
+        navigate(data.user.role === "doctor" ? "/doctor/dashboard" : "/dashboard");
       } else {
         toast.success("Registration successful! Please login.");
         setIsLogin(true);
       }
     } catch (err) {
-      setError(err.message);
-      toast.error(err.message);
+      const message = err.name === "TimeoutError" || err.name === "AbortError"
+        ? (isLogin ? "The server is taking too long. Please try signing in again." : "The request timed out. Your account may have been created; try signing in before registering again.")
+        : err.message === "Failed to fetch" ? "Could not reach the server. Check your connection and try again." : err.message;
+      setError(message);
+      toast.error(message);
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "6rem 1rem 2rem", background: "linear-gradient(160deg, #f0f9f7 0%, #ffffff 50%, #eef4fb 100%)", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", position: "relative" }}>
-      {/* Background blobs */}
-      <div style={{ position: "fixed", top: "5%", right: "-10%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(10,126,110,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
-      <div style={{ position: "fixed", bottom: "5%", left: "-10%", width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(79,70,229,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "6rem 1rem 2rem", background: "#f7f9fa", fontFamily: "'Segoe UI', Arial, sans-serif", position: "relative" }}>
 
       <div style={{ width: "100%", maxWidth: 440, position: "relative", zIndex: 1 }}>
 
         {/* Role Switcher */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", background: "white", borderRadius: 16, padding: 5, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #e8edf2", marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", background: "white", borderRadius: 16, padding: 5, boxShadow: "none", border: "1px solid #e8edf2", marginBottom: 20 }}>
           {[
-            { key: "patient", label: "Patient", emoji: "🧑‍⚕️", accent: "#0a7e6e" },
-            { key: "doctor",  label: "Doctor",  emoji: "👨‍⚕️", accent: "#4f46e5" },
+            { key: "patient", label: "Patient", icon: UserRound, accent: "#0a7e6e" },
+            { key: "doctor",  label: "Doctor",  icon: Stethoscope, accent: "#4f46e5" },
           ].map((r) => (
-            <button key={r.key} onClick={() => handleRoleSwitch(r.key)}
-              style={{ padding: "12px 16px", borderRadius: 12, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 700, fontSize: "0.9rem", transition: "all 0.25s ease", background: role === r.key ? `linear-gradient(135deg, ${r.accent}ee, ${r.accent})` : "transparent", color: role === r.key ? "white" : "#64748b", boxShadow: role === r.key ? `0 4px 14px ${r.accent}30` : "none", fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
-              <span style={{ fontSize: "1.1rem" }}>{r.emoji}</span>
+            <button key={r.key} disabled={submitting} onClick={() => handleRoleSwitch(r.key)}
+              style={{ padding: "12px 16px", borderRadius: 12, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontWeight: 700, fontSize: "0.9rem", transition: "all 0.25s ease", background: role === r.key ? r.accent : "transparent", color: role === r.key ? "white" : "#64748b", boxShadow: role === r.key ? `0 4px 14px ${r.accent}30` : "none", fontFamily: "'Segoe UI', Arial, sans-serif" }}>
+              <span style={{ fontSize: "1.1rem" }}><r.icon size={18}/></span>
               {r.label}
             </button>
           ))}
@@ -135,18 +148,18 @@ export default function AuthPage() {
         {/* Card */}
         <AnimatePresence mode="wait">
           <motion.div key={role + isLogin} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.22 }}
-            style={{ background: "white", borderRadius: 20, padding: "2.2rem", boxShadow: "0 8px 40px rgba(0,0,0,0.09)", border: "1px solid #e8edf2" }}>
+            style={{ background: "white", borderRadius: 12, padding: "2.2rem", boxShadow: "none", border: "1px solid #e8edf2" }}>
 
             {/* Header */}
             <div style={{ marginBottom: "1.8rem" }}>
               <div style={{ width: 48, height: 48, borderRadius: 14, background: isDoctor ? "rgba(79,70,229,0.08)" : "rgba(10,126,110,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem", marginBottom: 14, border: `1px solid ${accent}18` }}>
-                {isDoctor ? "👨‍⚕️" : "🧑‍⚕️"}
+                {isDoctor ? <Stethoscope size={24} color={accent}/> : <UserRound size={24} color={accent}/>}
               </div>
               <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#0d1b2a", letterSpacing: "-0.02em", margin: 0 }}>
-                {isLogin ? "Welcome back" : isDoctor ? "Join as Doctor" : "Create Account"}
+                {isLogin ? "Welcome back" : isDoctor ? "Create a doctor account" : "Create Account"}
               </h2>
               <p style={{ color: "#64748b", fontSize: "0.875rem", marginTop: 4 }}>
-                {isDoctor ? "Manage your patients and practice." : "Access your health dashboard."}
+                {isDoctor ? "Review appointments and patient records." : "Manage appointments, symptoms and documents."}
               </p>
             </div>
 
@@ -157,21 +170,23 @@ export default function AuthPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <form aria-busy={submitting} onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {!isLogin && (
                 <>
-                  <Input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required accent={accent} />
+                  <Input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required disabled={submitting} accent={accent} />
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                     {role === "patient" ? (
-                      <Input type="number" name="age" placeholder="Age" value={formData.age} onChange={handleChange} required accent={accent} />
+                      <Input type="number" name="age" placeholder="Age" value={formData.age} onChange={handleChange} required disabled={submitting} accent={accent} />
                     ) : (
-                      <Input type="text" name="specialization" placeholder="Specialization" value={formData.specialization} onChange={handleChange} required accent={accent} />
+                      <Input type="text" name="specialization" placeholder="Specialization" value={formData.specialization} onChange={handleChange} required disabled={submitting} accent={accent} />
                     )}
 
                     {/* ✅ FIXED gender select — values are lowercase to match mongoose enum */}
                     <select
                       name="gender"
+                      aria-label="Gender"
+                      disabled={submitting}
                       value={formData.gender}
                       onChange={handleChange}
                       required
@@ -191,26 +206,26 @@ export default function AuthPage() {
                   </div>
 
                   {role === "doctor" && (
-                    <Input type="number" name="experience" placeholder="Experience (years)" value={formData.experience} onChange={handleChange} required accent={accent} />
+                    <Input type="number" name="experience" placeholder="Experience (years)" value={formData.experience} onChange={handleChange} required disabled={submitting} accent={accent} />
                   )}
                 </>
               )}
 
-              <Input type="email"    name="email"    placeholder="Email address" value={formData.email}    onChange={handleChange} required accent={accent} />
-              <Input type="password" name="password" placeholder="Password"      value={formData.password} onChange={handleChange} required accent={accent} />
+              <Input type="email"    name="email"    placeholder="Email address" value={formData.email}    onChange={handleChange} required disabled={submitting} accent={accent} />
+              <Input type="password" name="password" placeholder="Password"      value={formData.password} onChange={handleChange} required disabled={submitting} accent={accent} />
 
-              <button type="submit"
-                style={{ marginTop: 4, padding: "13px 20px", borderRadius: 12, border: "none", background: `linear-gradient(135deg, ${accent}ee, ${accent})`, color: "white", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer", boxShadow: `0 6px 20px ${accent}30`, fontFamily: "'DM Sans', 'Segoe UI', sans-serif", transition: "opacity 0.2s", letterSpacing: "0.01em" }}
-                onMouseEnter={e => (e.target.style.opacity = 0.9)}
-                onMouseLeave={e => (e.target.style.opacity = 1)}>
-                {isLogin ? "Sign In" : "Create Account"} →
+              <button type="submit" disabled={submitting}
+                style={{ opacity: submitting ? 0.75 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 4, padding: "13px 20px", borderRadius: 12, border: "none", background: `${accent}ee`, color: "white", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer", boxShadow: "none", fontFamily: "'Segoe UI', Arial, sans-serif", transition: "opacity 0.2s", letterSpacing: "0.01em" }}
+                >
+                {submitting ? <><motion.span aria-hidden="true" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} style={{ display: "inline-flex" }}><LoaderCircle size={18}/></motion.span>{isLogin ? "Signing in…" : "Creating account…"}</> : <>{isLogin ? "Sign In" : "Create Account"} →</>}
               </button>
+              {submitting && <p role="status" style={{ color: "#64748b", fontSize: "0.8rem", textAlign: "center", margin: 0 }}>Please wait while we process your request.</p>}
             </form>
 
             <p style={{ textAlign: "center", marginTop: "1.25rem", fontSize: "0.85rem", color: "#64748b" }}>
               {isLogin ? "Don't have an account? " : "Already have an account? "}
-              <button onClick={() => { setIsLogin(!isLogin); setError(""); }}
-                style={{ background: "none", border: "none", color: accent, fontWeight: 700, cursor: "pointer", fontSize: "0.85rem", fontFamily: "'DM Sans', 'Segoe UI', sans-serif", padding: 0 }}>
+              <button disabled={submitting} onClick={() => { if (submittingRef.current) return; setIsLogin(!isLogin); setError(""); }}
+                style={{ background: "none", border: "none", color: accent, fontWeight: 700, cursor: "pointer", fontSize: "0.85rem", fontFamily: "'Segoe UI', Arial, sans-serif", padding: 0 }}>
                 {isLogin ? "Sign up" : "Log in"}
               </button>
             </p>

@@ -1,27 +1,22 @@
 import { Link } from "react-router-dom";
-import { Activity, CalendarDays, FileText, MessageCircle } from "lucide-react";
+import { Activity, ArrowRight, CalendarDays, FileText, MessageSquare, ClipboardList } from "lucide-react";
 
-const features = [
-  { title: "Track symptoms", description: "Keep a dated record of symptoms, moods and notes you enter.", path: "/symptom", icon: Activity },
-  { title: "Find doctors", description: "Browse registered doctor profiles and request an appointment.", path: "/doctors-list", icon: CalendarDays },
-  { title: "Manage documents", description: "Upload and view your own prescriptions and health documents.", path: "/docUpload", icon: FileText },
-  { title: "Ask CareAI", description: "Get AI-assisted information to discuss with a qualified clinician.", path: "/chatbot", icon: MessageCircle },
+const tools = [
+  { title: "Symptoms", description: "Write down how you feel, with dates and notes for your next visit.", path: "/symptom", icon: Activity },
+  { title: "Appointments", description: "Find a doctor and keep track of appointment requests.", path: "/doctors-list", icon: CalendarDays },
+  { title: "Documents", description: "Keep prescriptions and reports together for easy reference.", path: "/docUpload", icon: FileText },
+  { title: "CareAI", description: "Ask about health terms and prepare questions for your doctor.", path: "/chatbot", icon: MessageSquare },
 ];
-
 export default function Home() {
-  return <div style={{ minHeight: "100vh", padding: "8rem 1.5rem 5rem", background: "linear-gradient(150deg,#f0f9f7,#fff,#eef4fb)", color: "#0d1b2a" }}>
-    <section style={{ maxWidth: 1100, margin: "0 auto", paddingBottom: 56 }}>
-      <p style={{ color: "#0a7e6e", fontWeight: 700 }}>Your health records, in one place</p>
-      <h1 style={{ fontSize: "clamp(2.5rem,6vw,4.5rem)", fontWeight: 800, lineHeight: 1.1, maxWidth: 800, margin: "1rem 0" }}>Keep track of your care with CarePulse.</h1>
-      <p style={{ color: "#4a6070", fontSize: "1.1rem", lineHeight: 1.8, maxWidth: 650 }}>Log symptoms, organize documents and manage appointments. Your dashboard shows saved records, not sample health readings.</p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 28 }}>
-        <Link to="/symptom" style={{ padding: "14px 24px", borderRadius: 12, background: "#0a7e6e", color: "white", fontWeight: 700, textDecoration: "none" }}>Start health tracking →</Link>
-        <Link to="/services" style={{ padding: "14px 24px", borderRadius: 12, background: "white", color: "#0a7e6e", border: "1px solid #cce6df", fontWeight: 700, textDecoration: "none" }}>Explore tools</Link>
-      </div>
+  const signedIn = Boolean(localStorage.getItem("token"));
+  const doctor = localStorage.getItem("role") === "doctor";
+  const dashboard = doctor ? "/doctor/dashboard" : "/dashboard";
+  return <div className="cp-home">
+    <section className="cp-container cp-hero">
+      <div><p className="cp-eyebrow">CarePulse · Patient & doctor workspace</p><h1>A clearer picture<br/>of your care.</h1><p className="cp-hero-description">Keep your health notes, appointments and documents together. Less searching when it’s time to speak with your doctor.</p><div className="cp-button-row"><Link className="cp-button cp-button-primary" to={signedIn ? dashboard : "/login"}>{signedIn ? "Open your dashboard" : "Create an account"}<ArrowRight size={17}/></Link><Link className="cp-button cp-button-secondary" to="/services">See the tools</Link></div><p className="cp-hero-footnote">For everyday record keeping and appointment management.</p></div>
+      <aside className="cp-workflow"><div className="cp-workflow-heading"><ClipboardList size={21}/><span>Before your next appointment</span></div><ol>{[["Keep a note", "Record symptoms and changes while they’re fresh in your mind."], ["Bring your records together", "Add the prescriptions and reports you want to refer to."], ["Plan your visit", "Request an appointment and prepare your questions."]].map(([title, description], index) => <li key={title}><span className="cp-step">0{index + 1}</span><div><h2>{title}</h2><p>{description}</p></div></li>)}</ol><div className="cp-workflow-footer">Your records start with what you add.</div></aside>
     </section>
-    <section style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 20 }}>
-      {features.map(({title,description,path,icon:Icon})=><Link key={title} to={path} style={{ background: "white", border: "1px solid #e4ecea", borderRadius: 20, padding: 26, textDecoration: "none", color: "inherit" }}><Icon size={25} color="#0a7e6e"/><h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: "18px 0 10px" }}>{title}</h2><p style={{ color: "#64748b", lineHeight: 1.7 }}>{description}</p></Link>)}
-    </section>
-    <p style={{ maxWidth: 1100, margin: "32px auto 0", color: "#64748b", fontSize: "0.88rem", lineHeight: 1.7 }}>CarePulse does not measure vital signs or provide a confirmed diagnosis. AI-generated information can be inaccurate and requires clinician review.</p>
+    <section className="cp-tools-section"><div className="cp-container"><div className="cp-section-heading"><div><p className="cp-eyebrow">The essentials</p><h2>One place for the details.</h2></div><Link className="cp-text-link" to="/services">All tools<ArrowRight size={16}/></Link></div><div className="cp-tools-grid">{tools.map(({ title, description, path, icon: Icon }) => <Link className="cp-tool" key={title} to={doctor ? "/services" : path}><Icon size={22} strokeWidth={1.6}/><h3>{title}</h3><p>{description}</p><span>Open {title === "CareAI" ? "assistant" : title.toLowerCase()}<ArrowRight size={15}/></span></Link>)}</div></div></section>
+    <section className="cp-container cp-home-closing"><div><h2>For patients. For the people caring for them.</h2><p>Patients manage their records and appointments. Doctors review appointment details and prepare for consultations.</p></div><Link className="cp-text-link" to={signedIn ? dashboard : "/login"}>{signedIn ? "Go to overview" : "Sign in to get started"}<ArrowRight size={16}/></Link></section>
   </div>;
 }

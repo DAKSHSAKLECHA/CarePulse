@@ -11,11 +11,11 @@ import { scanPrescription } from "../../services/aiService";
 import toast from "react-hot-toast";
 import { Upload, FileText, Zap, AlertTriangle, CheckCircle, Pill, Calendar, User, Stethoscope, X, Eye, RotateCcw } from "lucide-react";
 
-const FF   = "'DM Sans', 'Segoe UI', sans-serif";
+const FF   = "'Segoe UI', Arial, sans-serif";
 const NAVY = "#0d1b2a";
-const INDIGO = "#4f46e5";
+const INDIGO = "#0a7367";
 
-const card = { background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" };
+const card = { background: "white", borderRadius: 12, border: "1px solid #e8edf2", boxShadow: "none" };
 
 const SEVERITY_STYLES = {
   minor:    { bg: "#f0fdf9", color: "#0a7e6e", border: "rgba(10,126,110,0.18)"  },
@@ -46,11 +46,11 @@ function ScanningAnimation() {
         <motion.div
           animate={{ top: ["12%", "88%", "12%"] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          style={{ position: "absolute", left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #4f46e5, transparent)", boxShadow: "0 0 8px #4f46e580" }}
+          style={{ position: "absolute", left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #4f46e5, transparent)", boxShadow: "none" }}
         />
       </div>
       <div style={{ textAlign: "center" }}>
-        <p style={{ fontWeight: 800, color: NAVY, fontSize: "1rem", margin: "0 0 4px" }}>✦ CareAI is performing document analysis</p>
+        <p style={{ fontWeight: 800, color: NAVY, fontSize: "1rem", margin: "0 0 4px" }}>Reading your document…</p>
         <p style={{ color: "#94a3b8", fontSize: "0.82rem", margin: 0 }}>Extracting medicines, dosages, doctor info…</p>
       </div>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}`}</style>
@@ -154,12 +154,12 @@ export default function SmartPrescriptionScanner() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #f0f4ff 0%, #ffffff 60%, #f0f9f6 100%)", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
+    <div style={{ minHeight: "100vh", background: "#f7f9fa", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
       <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 1.5rem" }}>
 
         {/* Hero */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          style={{ background: "linear-gradient(135deg, #1e1b4b, #312e81)", borderRadius: 24, padding: "2rem 2.4rem", marginBottom: 24, position: "relative", overflow: "hidden" }}>
+          style={{ background: "#1e1b4b", borderRadius: 12, padding: "2rem 2.4rem", marginBottom: 24, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -50, right: -50, width: 180, height: 180, borderRadius: "50%", background: "rgba(99,102,241,0.2)", filter: "blur(50px)" }} />
           <div style={{ position: "relative", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 14 }}>
             <div>
@@ -167,7 +167,7 @@ export default function SmartPrescriptionScanner() {
                 <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(99,102,241,0.25)", border: "1px solid rgba(99,102,241,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Eye size={18} color="#a5b4fc" />
                 </div>
-                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>✦ AI-Assisted Analysis</span>
+                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>AI-assisted review</span>
               </div>
               <h1 style={{ color: "white", fontWeight: 800, fontSize: "clamp(1.3rem, 3vw, 1.9rem)", margin: "0 0 6px", letterSpacing: "-0.02em" }}>Smart Prescription Scanner</h1>
               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem", margin: 0 }}>Upload any prescription or medical document — AI extracts all medicines, dosages, and doctor info instantly.</p>
@@ -228,8 +228,8 @@ export default function SmartPrescriptionScanner() {
 
                 {!scanning ? (
                   <button onClick={scan}
-                    style={{ width: "100%", padding: "13px", borderRadius: 12, background: `linear-gradient(135deg, ${INDIGO}, #6366f1)`, color: "white", fontWeight: 800, fontSize: "0.92rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: `0 6px 20px ${INDIGO}30`, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                    <Zap size={16} /> ✦ Analyse Document
+                    style={{ width: "100%", padding: "13px", borderRadius: 12, background: INDIGO, color: "white", fontWeight: 800, fontSize: "0.92rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    <Zap size={16} /> Analyse Document
                   </button>
                 ) : (
                   <ScanningAnimation />

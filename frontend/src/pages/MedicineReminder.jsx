@@ -10,11 +10,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { Bell, BellOff, Plus, Trash2, Check, Clock, Pill, Edit3, X, Moon, Sun } from "lucide-react";
 
-const FF   = "'DM Sans', 'Segoe UI', sans-serif";
+const FF   = "'Segoe UI', Arial, sans-serif";
 const NAVY = "#0d1b2a";
 const TEAL = "#0a7e6e";
 
-const card = { background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" };
+const card = { background: "white", borderRadius: 12, border: "1px solid #e8edf2", boxShadow: "none" };
 
 const FREQUENCIES = [
   { label: "Once daily",       value: "once",      times: 1 },
@@ -156,7 +156,7 @@ function AddEditModal({ initialData, onSave, onClose }) {
       style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(5px)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
       <motion.div initial={{ scale: 0.95, y: 12 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95 }}
         onClick={e => e.stopPropagation()}
-        style={{ ...card, padding: "2rem", maxWidth: 500, width: "100%", boxShadow: "0 24px 60px rgba(0,0,0,0.18)", maxHeight: "90vh", overflowY: "auto" }}>
+        style={{ ...card, padding: "2rem", maxWidth: 500, width: "100%", boxShadow: "none", maxHeight: "90vh", overflowY: "auto" }}>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.4rem" }}>
           <h3 style={{ fontWeight: 800, color: NAVY, margin: 0 }}>{initialData ? "Edit Medicine" : "Add Medicine"}</h3>
@@ -233,7 +233,7 @@ function AddEditModal({ initialData, onSave, onClose }) {
 
           <button
             onClick={() => { if (!form.name) { toast.error("Enter medicine name"); return; } onSave({ ...form, id: initialData?.id || generateId() }); }}
-            style={{ padding: "12px", borderRadius: 12, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, color: "white", fontWeight: 800, fontSize: "0.9rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: `0 6px 18px ${TEAL}30` }}>
+            style={{ padding: "12px", borderRadius: 12, background: TEAL, color: "white", fontWeight: 800, fontSize: "0.9rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: "none" }}>
             {initialData ? "Save Changes" : "Add Medicine +"}
           </button>
         </div>
@@ -330,12 +330,12 @@ export default function MedicineReminder() {
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #f0fdf9 0%, #ffffff 60%, #f0f4ff 100%)", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
+    <div style={{ minHeight: "100vh", background: "#f7f9fa", fontFamily: FF, paddingTop: "5.5rem", paddingBottom: "4rem" }}>
       <div style={{ maxWidth: 860, margin: "0 auto", padding: "0 1.5rem" }}>
 
         {/* Hero */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          style={{ background: `linear-gradient(135deg, ${NAVY}, #0a3d35)`, borderRadius: 24, padding: "2rem 2.4rem", marginBottom: 20, position: "relative", overflow: "hidden" }}>
+          style={{ background: NAVY, borderRadius: 12, padding: "2rem 2.4rem", marginBottom: 20, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -50, right: -50, width: 180, height: 180, borderRadius: "50%", background: "rgba(10,126,110,0.2)", filter: "blur(50px)" }} />
           <div style={{ position: "relative", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
             <div>
@@ -408,7 +408,7 @@ export default function MedicineReminder() {
               <p style={{ color: "#94a3b8", fontSize: "0.75rem", margin: "2px 0 0" }}>Tap a time to mark as taken</p>
             </div>
             <button onClick={() => { setEditingMed(null); setShowModal(true); }}
-              style={{ padding: "9px 18px", borderRadius: 12, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, color: "white", fontWeight: 700, fontSize: "0.82rem", border: "none", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 6, boxShadow: `0 4px 14px ${TEAL}30` }}>
+              style={{ padding: "9px 18px", borderRadius: 12, background: TEAL, color: "white", fontWeight: 700, fontSize: "0.82rem", border: "none", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 6, boxShadow: "none" }}>
               <Plus size={14} /> Add Medicine
             </button>
           </div>
@@ -419,7 +419,7 @@ export default function MedicineReminder() {
               <h3 style={{ fontWeight: 800, color: NAVY, margin: "0 0 6px" }}>No Medicines Added Yet</h3>
               <p style={{ color: "#94a3b8", margin: "0 0 22px", fontSize: "0.875rem" }}>Add your medicines to get timely reminders and track your daily adherence.</p>
               <button onClick={() => setShowModal(true)}
-                style={{ padding: "12px 28px", borderRadius: 13, background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, color: "white", fontWeight: 700, fontSize: "0.9rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: `0 6px 18px ${TEAL}30` }}>
+                style={{ padding: "12px 28px", borderRadius: 13, background: TEAL, color: "white", fontWeight: 700, fontSize: "0.9rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: "none" }}>
                 + Add Your First Medicine
               </button>
             </div>
@@ -442,7 +442,7 @@ export default function MedicineReminder() {
         </div>
 
         {/* Tips card */}
-        <div style={{ background: `linear-gradient(135deg, #f0fdf9, #eff6ff)`, borderRadius: 18, padding: "1.4rem", border: "1px solid rgba(10,126,110,0.12)" }}>
+        <div style={{ background: "#f0fdf9", borderRadius: 12, padding: "1.4rem", border: "1px solid rgba(10,126,110,0.12)" }}>
           <h4 style={{ fontWeight: 800, color: NAVY, margin: "0 0 10px", fontSize: "0.88rem" }}>💡 Tips for Better Adherence</h4>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
             {[

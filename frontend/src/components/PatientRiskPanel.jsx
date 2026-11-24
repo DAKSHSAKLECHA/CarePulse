@@ -21,9 +21,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { assessPatientRisk } from "../../services/aiService";
 import { ShieldAlert, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, TrendingUp } from "lucide-react";
 
-const FF   = "'DM Sans', 'Segoe UI', sans-serif";
+const FF   = "'Segoe UI', Arial, sans-serif";
 const NAVY = "#0d1b2a";
-const card = { background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" };
+const card = { background: "white", borderRadius: 12, border: "1px solid #e8edf2", boxShadow: "none" };
 
 const RISK_CONFIG = {
   unknown: { color: "#64748b", bg: "#f8fafc", border: "#cbd5e1", icon: "—", pulse: false },
@@ -71,7 +71,7 @@ function PatientRiskCard({ patient, symptoms, index }) {
 
       {/* High risk pulse indicator */}
       {cfg?.pulse && (
-        <div style={{ height: 3, background: "linear-gradient(90deg, #dc2626, #f87171, #dc2626)", backgroundSize: "200% 100%", animation: "shimmer 2s linear infinite" }} />
+        <div style={{ height: 3, background: "#dc2626", backgroundSize: "200% 100%", animation: "shimmer 2s linear infinite" }} />
       )}
 
       <div style={{ padding: "14px 16px" }}>
@@ -218,7 +218,7 @@ export default function PatientRiskPanel({ patients }) {
             </div>
           </div>
           <button onClick={runAnalysis} disabled={analyzing}
-            style={{ padding: "10px 20px", borderRadius: 12, background: "linear-gradient(135deg, #dc2626, #f87171)", color: "white", fontWeight: 700, fontSize: "0.82rem", border: "none", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 6, boxShadow: "0 4px 14px rgba(220,38,38,0.25)", opacity: analyzing ? 0.7 : 1 }}>
+            style={{ padding: "10px 20px", borderRadius: 12, background: "#dc2626", color: "white", fontWeight: 700, fontSize: "0.82rem", border: "none", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 6, boxShadow: "none", opacity: analyzing ? 0.7 : 1 }}>
             <ShieldAlert size={14} />
             {analyzing ? "Running…" : `Assess ${patientsToAssess.length} Patients`}
           </button>
@@ -234,7 +234,7 @@ export default function PatientRiskPanel({ patients }) {
           <h3 style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "0.95rem", display: "flex", alignItems: "center", gap: 7 }}>
             <ShieldAlert size={16} color="#dc2626" /> AI Risk Assessment
           </h3>
-          <p style={{ color: "#94a3b8", fontSize: "0.72rem", margin: "2px 0 0" }}>✦ AI-Assisted patient risk analysis</p>
+          <p style={{ color: "#94a3b8", fontSize: "0.72rem", margin: "2px 0 0" }}>AI-Assisted patient risk analysis</p>
         </div>
         <button onClick={() => { setRefreshKey(k => k + 1); setActive(false); runAnalysis(); }}
           style={{ padding: "6px 14px", borderRadius: 9, background: "#f1f5f9", border: "none", color: "#64748b", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 5 }}>

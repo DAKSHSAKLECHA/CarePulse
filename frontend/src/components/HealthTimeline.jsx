@@ -28,20 +28,20 @@ import {
 } from "lucide-react";
 
 // ── Design tokens ─────────────────────────────────────────────
-const FF    = "'DM Sans', 'Segoe UI', sans-serif";
+const FF    = "'Segoe UI', Arial, sans-serif";
 const NAVY  = "#0d1b2a";
 const TEAL  = "#0a7e6e";
 const GOLD  = "#b45309";
-const card  = { background: "white", borderRadius: 24, border: "1px solid #e8edf2", boxShadow: "0 4px 20px rgba(0,0,0,0.05)" };
+const card  = { background: "white", borderRadius: 12, border: "1px solid #e8edf2", boxShadow: "none" };
 
 // ── Health chapter types with visual identity ─────────────────
 const CHAPTER_TYPES = {
-  recovery:    { icon: "🌱", color: "#16a34a", bg: "#f0fdf4", border: "rgba(22,163,74,0.2)",   grad: "linear-gradient(135deg,#16a34a,#4ade80)",  label: "Recovery"     },
-  challenge:   { icon: "⚡", color: "#b45309", bg: "#fffbeb", border: "rgba(180,83,9,0.2)",    grad: "linear-gradient(135deg,#b45309,#f59e0b)",  label: "Challenge"    },
-  milestone:   { icon: "🏆", color: "#7c3aed", bg: "#f5f3ff", border: "rgba(124,58,237,0.2)", grad: "linear-gradient(135deg,#7c3aed,#a78bfa)",  label: "Milestone"    },
-  stable:      { icon: "🛡️", color: "#1d4ed8", bg: "#eff6ff", border: "rgba(29,78,216,0.2)",  grad: "linear-gradient(135deg,#1d4ed8,#60a5fa)",  label: "Stable"       },
-  concern:     { icon: "🔴", color: "#dc2626", bg: "#fef2f2", border: "rgba(220,38,38,0.2)",   grad: "linear-gradient(135deg,#dc2626,#f87171)",  label: "Concern"      },
-  improvement: { icon: "📈", color: TEAL,      bg: "#f0fdf9", border: "rgba(10,126,110,0.2)",  grad: "linear-gradient(135deg,#0a7e6e,#0d9488)",  label: "Improvement"  },
+  recovery:    { icon: "🌱", color: "#16a34a", bg: "#f0fdf4", border: "rgba(22,163,74,0.2)",   grad: "#16a34a",  label: "Recovery"     },
+  challenge:   { icon: "⚡", color: "#b45309", bg: "#fffbeb", border: "rgba(180,83,9,0.2)",    grad: "#b45309",  label: "Challenge"    },
+  milestone:   { icon: "🏆", color: "#7c3aed", bg: "#f5f3ff", border: "rgba(124,58,237,0.2)", grad: "#7c3aed",  label: "Milestone"    },
+  stable:      { icon: "🛡️", color: "#1d4ed8", bg: "#eff6ff", border: "rgba(29,78,216,0.2)",  grad: "#1d4ed8",  label: "Stable"       },
+  concern:     { icon: "🔴", color: "#dc2626", bg: "#fef2f2", border: "rgba(220,38,38,0.2)",   grad: "#dc2626",  label: "Concern"      },
+  improvement: { icon: "📈", color: TEAL,      bg: "#f0fdf9", border: "rgba(10,126,110,0.2)",  grad: "#0a7e6e",  label: "Improvement"  },
 };
 
 const TREND_ICONS = {
@@ -71,7 +71,7 @@ function ChapterCard({ chapter, index, isLast }) {
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: index * 0.12 + 0.4 }}
-          style={{ width: 40, height: 40, borderRadius: 12, background: cfg.grad, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", boxShadow: `0 4px 14px ${cfg.color}30`, flexShrink: 0, zIndex: 1, position: "relative" }}>
+          style={{ width: 40, height: 40, borderRadius: 12, background: cfg.grad, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", boxShadow: "none", flexShrink: 0, zIndex: 1, position: "relative" }}>
           {cfg.icon}
           {/* Chapter number */}
           <div style={{ position: "absolute", top: -5, right: -5, width: 16, height: 16, borderRadius: "50%", background: NAVY, color: "white", fontSize: "0.55rem", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid white" }}>
@@ -84,7 +84,7 @@ function ChapterCard({ chapter, index, isLast }) {
             initial={{ height: 0 }}
             animate={{ height: "100%" }}
             transition={{ delay: index * 0.12 + 0.6, duration: 0.5 }}
-            style={{ width: 2, flex: 1, background: `linear-gradient(to bottom, ${cfg.color}40, ${cfg.color}10)`, minHeight: 32, marginTop: 4 }}
+            style={{ width: 2, flex: 1, background: `${cfg.color}40`, minHeight: 32, marginTop: 4 }}
           />
         )}
       </div>
@@ -209,7 +209,7 @@ function PatientStoryCard({ patient, appointments, index }) {
       {/* Patient header */}
       <div style={{ padding: "1.1rem 1.3rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: `linear-gradient(135deg, ${TEAL}20, ${TEAL}10)`, color: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "1rem", flexShrink: 0 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: `${TEAL}20`, color: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "1rem", flexShrink: 0 }}>
             {patient.name?.charAt(0)}
           </div>
           <div>
@@ -224,7 +224,7 @@ function PatientStoryCard({ patient, appointments, index }) {
           {/* Score badge */}
 
           <button onClick={generate} disabled={loading}
-            style={{ padding: "7px 14px", borderRadius: 10, background: story ? "#f1f5f9" : `linear-gradient(135deg, ${TEAL}, #0d9488)`, border: "none", color: story ? "#64748b" : "white", fontWeight: 700, fontSize: "0.72rem", cursor: loading ? "not-allowed" : "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 5, opacity: loading ? 0.7 : 1, boxShadow: !story ? `0 4px 12px ${TEAL}30` : "none" }}>
+            style={{ padding: "7px 14px", borderRadius: 10, background: story ? "#f1f5f9" : TEAL, border: "none", color: story ? "#64748b" : "white", fontWeight: 700, fontSize: "0.72rem", cursor: loading ? "not-allowed" : "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 5, opacity: loading ? 0.7 : 1, boxShadow: !story ? `0 4px 12px ${TEAL}30` : "none" }}>
             {loading ? (
               <><div style={{ width: 10, height: 10, border: "2px solid white", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} /> Generating…</>
             ) : story ? (
@@ -244,9 +244,9 @@ function PatientStoryCard({ patient, appointments, index }) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             style={{ overflow: "hidden", borderTop: "1px solid #f1f5f9" }}>
-            <div style={{ padding: "1.2rem 1.3rem", background: "linear-gradient(160deg, #f8fafc, #f0fdf9)" }}>
+            <div style={{ padding: "1.2rem 1.3rem", background: "#f7f9fa" }}>
               {/* Arc */}
-              <div style={{ background: `linear-gradient(135deg, ${NAVY}, #0a3d35)`, borderRadius: 12, padding: "10px 14px", marginBottom: 12 }}>
+              <div style={{ background: NAVY, borderRadius: 12, padding: "10px 14px", marginBottom: 12 }}>
                 <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 3px" }}>Health Journey Arc</p>
                 <p style={{ color: "white", fontWeight: 700, fontSize: "0.82rem", margin: 0, lineHeight: 1.5 }}>{story.overallArc}</p>
               </div>
@@ -337,7 +337,7 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.4rem", flexWrap: "wrap", gap: 10 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 9, background: `linear-gradient(135deg, #7c3aed, #a78bfa)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 32, height: 32, borderRadius: 9, background: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <BookOpen size={15} color="white" />
               </div>
               <h3 style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "1rem" }}>Patient Health Stories</h3>
@@ -346,8 +346,8 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
               AI-generated personal health narratives for each of your patients
             </p>
           </div>
-          <span style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)", color: "white", borderRadius: 99, padding: "4px 14px", fontSize: "0.7rem", fontWeight: 700 }}>
-            ✨ AI Feature
+          <span style={{ background: "#7c3aed", color: "white", borderRadius: 99, padding: "4px 14px", fontSize: "0.7rem", fontWeight: 700 }}>
+            AI Feature
           </span>
         </div>
 
@@ -384,24 +384,24 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
 
       {/* Section label */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <div style={{ height: 1, flex: 1, background: "linear-gradient(to right, #e8edf2, transparent)" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 7, background: "linear-gradient(135deg,#7c3aed20,#a78bfa10)", borderRadius: 99, padding: "5px 14px", border: "1px solid rgba(124,58,237,0.15)" }}>
+        <div style={{ height: 1, flex: 1, background: "#e8edf2" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 7, background: "#7c3aed20", borderRadius: 99, padding: "5px 14px", border: "1px solid rgba(124,58,237,0.15)" }}>
           <Sparkles size={13} color="#7c3aed" />
           <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#7c3aed", letterSpacing: "0.06em", textTransform: "uppercase" }}>Your Health Story</span>
         </div>
-        <div style={{ height: 1, flex: 1, background: "linear-gradient(to left, #e8edf2, transparent)" }} />
+        <div style={{ height: 1, flex: 1, background: "#e8edf2" }} />
       </div>
 
       {/* Pre-generate state */}
       {!generated && !loading && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          style={{ ...card, padding: "2.4rem", textAlign: "center", background: "linear-gradient(160deg, #faf5ff, #f5f3ff, #f0fdf9)", border: "1px solid rgba(124,58,237,0.12)" }}>
+          style={{ ...card, padding: "2.4rem", textAlign: "center", background: "#f7f9fa", border: "1px solid rgba(124,58,237,0.12)" }}>
 
           {/* Decorative orbs */}
           <div style={{ position: "relative", width: 90, height: 90, margin: "0 auto 20px" }}>
-            <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "linear-gradient(135deg,#7c3aed20,#a78bfa10)", animation: "breathe 3s ease-in-out infinite" }} />
-            <div style={{ position: "absolute", inset: 8, borderRadius: "50%", background: "linear-gradient(135deg,#7c3aed30,#a78bfa20)", animation: "breathe 3s ease-in-out 0.5s infinite" }} />
-            <div style={{ position: "absolute", inset: 16, borderRadius: "50%", background: "linear-gradient(135deg,#7c3aed,#a78bfa)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#7c3aed20", animation: "breathe 3s ease-in-out infinite" }} />
+            <div style={{ position: "absolute", inset: 8, borderRadius: "50%", background: "#7c3aed30", animation: "breathe 3s ease-in-out 0.5s infinite" }} />
+            <div style={{ position: "absolute", inset: 16, borderRadius: "50%", background: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <BookOpen size={22} color="white" />
             </div>
           </div>
@@ -410,7 +410,7 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
             Your Personal Health Timeline
           </h2>
           <p style={{ color: "#64748b", margin: "0 0 8px", fontSize: "0.875rem", maxWidth: 420, marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
-            CareAI performs a clinically-informed review of your symptoms, appointments, and health data to write a personalized narrative of your health journey — chapters, milestones, and all.
+            Create a summary of your saved symptoms and appointments. Review it for accuracy before sharing it with your doctor.
           </p>
 
           {/* Data preview */}
@@ -427,7 +427,7 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
           </div>
 
           <button onClick={generateStory}
-            style={{ padding: "13px 32px", borderRadius: 14, background: "linear-gradient(135deg,#7c3aed,#a78bfa)", color: "white", fontWeight: 800, fontSize: "0.95rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: "0 8px 24px rgba(124,58,237,0.35)", letterSpacing: "-0.01em", display: "inline-flex", alignItems: "center", gap: 8 }}>
+            style={{ padding: "13px 32px", borderRadius: 14, background: "#7c3aed", color: "white", fontWeight: 800, fontSize: "0.95rem", border: "none", cursor: "pointer", fontFamily: FF, boxShadow: "none", letterSpacing: "-0.01em", display: "inline-flex", alignItems: "center", gap: 8 }}>
             <Sparkles size={16} /> Generate My Health Story
           </button>
 
@@ -440,11 +440,11 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
       {/* Loading state */}
       {loading && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          style={{ ...card, padding: "3rem", textAlign: "center", background: "linear-gradient(160deg,#faf5ff,#f0fdf9)" }}>
+          style={{ ...card, padding: "3rem", textAlign: "center", background: "#f7f9fa" }}>
           <div style={{ position: "relative", width: 70, height: 70, margin: "0 auto 20px" }}>
             <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid #7c3aed20" }} />
             <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid #7c3aed", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
-            <div style={{ position: "absolute", inset: 12, borderRadius: "50%", background: "linear-gradient(135deg,#7c3aed,#a78bfa)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ position: "absolute", inset: 12, borderRadius: "50%", background: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <BookOpen size={18} color="white" />
             </div>
           </div>
@@ -468,7 +468,7 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
           {/* Hero banner */}
-          <div style={{ background: `linear-gradient(135deg, ${NAVY} 0%, #1e1254 50%, #0a3d35 100%)`, borderRadius: 24, padding: "2rem 2.2rem", marginBottom: 20, position: "relative", overflow: "hidden" }}>
+          <div style={{ background: NAVY, borderRadius: 12, padding: "2rem 2.2rem", marginBottom: 20, position: "relative", overflow: "hidden" }}>
             {/* Background orbs */}
             <div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, borderRadius: "50%", background: "rgba(124,58,237,0.15)", filter: "blur(50px)" }} />
             <div style={{ position: "absolute", bottom: -40, left: 60, width: 160, height: 160, borderRadius: "50%", background: "rgba(10,126,110,0.12)", filter: "blur(40px)" }} />
@@ -477,7 +477,7 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
               <div style={{ flex: 1, minWidth: 220 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
                   <Sparkles size={13} color="#a78bfa" />
-                  <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>✦ AI-Assisted Analysis</span>
+                  <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>AI-assisted review</span>
                 </div>
                 <h2 style={{ color: "white", fontWeight: 800, fontSize: "clamp(1.1rem, 2.5vw, 1.5rem)", margin: "0 0 8px", letterSpacing: "-0.02em", lineHeight: 1.3 }}>
                   {user.name}'s Health Journey
@@ -537,7 +537,7 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
               <div>
                 <h3 style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "1rem" }}>Your Health Chapters</h3>
                 <p style={{ color: "#94a3b8", fontSize: "0.72rem", margin: "2px 0 0" }}>
-                  {story.chapters?.length} chapters in your journey · Click to expand
+                  {story.chapters?.length} sections · Select to expand
                 </p>
               </div>
               <button onClick={generateStory}
@@ -561,9 +561,9 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
           {/* AI Message + Next Chapter */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             {/* AI personal message */}
-            <div style={{ background: "linear-gradient(135deg,#faf5ff,#f5f3ff)", borderRadius: 18, padding: "1.3rem 1.5rem", border: "1px solid rgba(124,58,237,0.15)" }}>
+            <div style={{ background: "#f7f9fa", borderRadius: 12, padding: "1.3rem 1.5rem", border: "1px solid rgba(124,58,237,0.15)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg,#7c3aed,#a78bfa)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem" }}>🤖</div>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem" }}>🤖</div>
                 <p style={{ fontWeight: 800, color: "#7c3aed", margin: 0, fontSize: "0.78rem" }}>Message from CareAI</p>
               </div>
               <p style={{ fontSize: "0.82rem", color: "#334155", margin: 0, lineHeight: 1.7, fontStyle: "italic" }}>
@@ -572,9 +572,9 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
             </div>
 
             {/* Next chapter */}
-            <div style={{ background: `linear-gradient(135deg, ${TEAL}08, ${TEAL}04)`, borderRadius: 18, padding: "1.3rem 1.5rem", border: `1px solid ${TEAL}20` }}>
+            <div style={{ background: `${TEAL}08`, borderRadius: 12, padding: "1.3rem 1.5rem", border: `1px solid ${TEAL}20` }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: `linear-gradient(135deg,${TEAL},#0d9488)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: TEAL, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <TrendingUp size={13} color="white" />
                 </div>
                 <p style={{ fontWeight: 800, color: TEAL, margin: 0, fontSize: "0.78rem" }}>Your Next Chapter</p>
@@ -582,7 +582,7 @@ export default function HealthTimeline({ mode = "patient", patients = [], appoin
               <p style={{ fontSize: "0.82rem", color: "#334155", margin: "0 0 12px", lineHeight: 1.7 }}>
                 {story.nextChapter}
               </p>
-              <a href="/doctors-list" style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 9, background: `linear-gradient(135deg,${TEAL},#0d9488)`, color: "white", fontWeight: 700, fontSize: "0.72rem", textDecoration: "none", boxShadow: `0 4px 12px ${TEAL}30` }}>
+              <a href="/doctors-list" style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 9, background: TEAL, color: "white", fontWeight: 700, fontSize: "0.72rem", textDecoration: "none", boxShadow: "none" }}>
                 Book Appointment →
               </a>
             </div>

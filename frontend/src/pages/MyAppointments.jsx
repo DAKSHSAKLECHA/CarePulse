@@ -30,8 +30,8 @@ export default function MyAppointments() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(160deg, #f0f9f7 0%, #ffffff 60%, #eef4fb 100%)",
-        fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+        background: "#f7f9fa",
+        fontFamily: "'Segoe UI', Arial, sans-serif",
         paddingTop: "6.5rem",
         paddingBottom: "4rem",
       }}
@@ -62,7 +62,7 @@ export default function MyAppointments() {
             animate={{ opacity: 1 }}
             style={{
               background: "white",
-              borderRadius: 20,
+              borderRadius: 12,
               padding: "4rem",
               textAlign: "center",
               border: "2px dashed #e2e8f0",
@@ -76,14 +76,14 @@ export default function MyAppointments() {
                 style={{
                   padding: "12px 28px",
                   borderRadius: 12,
-                  background: "linear-gradient(135deg, #0a7e6e, #0d9488)",
+                  background: "#0a7e6e",
                   color: "white",
                   fontWeight: 700,
                   fontSize: "0.9rem",
                   border: "none",
                   cursor: "pointer",
-                  fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
-                  boxShadow: "0 6px 20px rgba(10,126,110,0.25)",
+                  fontFamily: "'Segoe UI', Arial, sans-serif",
+                  boxShadow: "none",
                 }}
               >
                 Browse Doctors →
@@ -100,13 +100,13 @@ export default function MyAppointments() {
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06 }}
-                  whileHover={{ y: -3, boxShadow: "0 12px 36px rgba(0,0,0,0.08)" }}
+                  whileHover={{ y: -3, boxShadow: "none" }}
                   style={{
                     background: "white",
-                    borderRadius: 20,
+                    borderRadius: 12,
                     padding: "1.5rem 1.8rem",
                     border: "1px solid #e8edf2",
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+                    boxShadow: "none",
                     transition: "all 0.25s ease",
                   }}
                 >

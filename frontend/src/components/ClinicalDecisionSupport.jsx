@@ -29,16 +29,16 @@ import {
 } from "../../services/aiService";
 
 // ── Design tokens ─────────────────────────────────────────────
-const FF    = "'DM Sans', 'Segoe UI', sans-serif";
+const FF    = "'Segoe UI', Arial, sans-serif";
 const NAVY  = "#0d1b2a";
 const TEAL  = "#0a7e6e";
-const INDIGO = "#4f46e5";
-const card  = { background: "white", borderRadius: 20, border: "1px solid #e8edf2", boxShadow: "0 4px 20px rgba(0,0,0,0.05)" };
+const INDIGO = "#0a7367";
+const card  = { background: "white", borderRadius: 12, border: "1px solid #e8edf2", boxShadow: "none" };
 
 // ── Shared loading state ──────────────────────────────────────
 function AILoader({ label = "CareAI is analysing…" }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", background: "linear-gradient(135deg,#f0fdf9,#eff6ff)", borderRadius: 14, border: "1px solid rgba(10,126,110,0.12)" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", background: "#f7f9fa", borderRadius: 14, border: "1px solid rgba(10,126,110,0.12)" }}>
       <div style={{ width: 20, height: 20, border: `2px solid ${TEAL}`, borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite", flexShrink: 0 }} />
       <p style={{ fontWeight: 600, color: TEAL, margin: 0, fontSize: "0.82rem" }}>{label}</p>
     </div>
@@ -120,13 +120,13 @@ export function ClinicalBrief({ patient, appointments = [], symptoms = [] }) {
     <div style={{ marginTop: 10 }}>
       {/* Trigger button */}
       <button onClick={generate} disabled={loading}
-        style={{ width: "100%", padding: "9px 14px", borderRadius: 11, background: brief ? "#f8fafc" : `linear-gradient(135deg, ${INDIGO}, #6366f1)`, border: brief ? "1px solid #e2e8f0" : "none", color: brief ? "#64748b" : "white", fontWeight: 700, fontSize: "0.78rem", cursor: loading ? "not-allowed" : "pointer", fontFamily: FF, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: !brief ? "0 4px 14px rgba(79,70,229,0.3)" : "none", opacity: loading ? 0.8 : 1 }}>
+        style={{ width: "100%", padding: "9px 14px", borderRadius: 11, background: brief ? "#f8fafc" : INDIGO, border: brief ? "1px solid #e2e8f0" : "none", color: brief ? "#64748b" : "white", fontWeight: 700, fontSize: "0.78rem", cursor: loading ? "not-allowed" : "pointer", fontFamily: FF, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: !brief ? "0 4px 14px rgba(79,70,229,0.3)" : "none", opacity: loading ? 0.8 : 1 }}>
         {loading ? (
           <><div style={{ width: 12, height: 12, border: "2px solid white", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} /> Generating Brief…</>
         ) : brief ? (
           <>{open ? <ChevronUp size={13} /> : <ChevronDown size={13} />} {open ? "Hide" : "View"} Clinical Brief</>
         ) : (
-          <><Brain size={13} /> ✦ Generate Clinical Brief</>
+          <><Brain size={13} /> Generate Clinical Brief</>
         )}
       </button>
 
@@ -138,7 +138,7 @@ export function ClinicalBrief({ patient, appointments = [], symptoms = [] }) {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             style={{ overflow: "hidden" }}>
-            <div style={{ marginTop: 10, background: "linear-gradient(160deg, #f8fafc, #f0f9ff)", borderRadius: 16, border: "1px solid #e0e7ff", overflow: "hidden" }}>
+            <div style={{ marginTop: 10, background: "#f7f9fa", borderRadius: 16, border: "1px solid #e0e7ff", overflow: "hidden" }}>
 
               {/* Priority banner */}
               <div style={{ padding: "10px 16px", background: `${priorityColor}10`, borderBottom: `1px solid ${priorityColor}20`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -289,14 +289,14 @@ Patient Education: ${soap.plan?.patientEducation}` : "";
   return (
     <div style={{ ...card, overflow: "hidden", marginTop: 14 }}>
       {/* Header */}
-      <div style={{ padding: "14px 18px", background: "linear-gradient(135deg, #0d1b2a, #1e3a5f)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ padding: "14px 18px", background: "#0d1b2a", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <div style={{ width: 32, height: 32, borderRadius: 9, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <FileText size={15} color="white" />
           </div>
           <div>
-            <p style={{ color: "white", fontWeight: 800, margin: 0, fontSize: "0.88rem" }}>✦ AI-Assisted SOAP Note</p>
-            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.65rem", margin: 0 }}>Hospital-standard clinical documentation</p>
+            <p style={{ color: "white", fontWeight: 800, margin: 0, fontSize: "0.88rem" }}>AI-Assisted SOAP Note</p>
+            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.65rem", margin: 0 }}>Draft documentation · review before use</p>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -428,13 +428,13 @@ export function PreAppointmentBrief({ appointment, recentSymptoms = [] }) {
       style={{ ...card, overflow: "hidden", marginBottom: 16 }}>
 
       {/* Header */}
-      <div style={{ background: `linear-gradient(135deg, ${TEAL}, #0d9488)`, padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ background: TEAL, padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <div style={{ width: 34, height: 34, borderRadius: 10, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Stethoscope size={16} color="white" />
           </div>
           <div>
-            <p style={{ color: "white", fontWeight: 800, margin: 0, fontSize: "0.9rem" }}>✦ Pre-Appointment Brief</p>
+            <p style={{ color: "white", fontWeight: 800, margin: 0, fontSize: "0.9rem" }}>Pre-Appointment Brief</p>
             <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.68rem", margin: 0 }}>
               Appointment with Dr. {appointment.doctor?.name} · {appointment.date}
             </p>
@@ -547,13 +547,13 @@ export function DiagnosisAssist({ patient, symptoms = [], onDiagnosisSelect }) {
   return (
     <div style={{ ...card, overflow: "hidden", marginBottom: 20 }}>
       {/* Header */}
-      <div style={{ padding: "14px 18px", background: "linear-gradient(135deg, #4c1d95, #7c3aed)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ padding: "14px 18px", background: "#4c1d95", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <div style={{ width: 34, height: 34, borderRadius: 10, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Brain size={16} color="white" />
           </div>
           <div>
-            <p style={{ color: "white", fontWeight: 800, margin: 0, fontSize: "0.9rem" }}>✦ CareAI Diagnosis Assist</p>
+            <p style={{ color: "white", fontWeight: 800, margin: 0, fontSize: "0.9rem" }}>CareAI Diagnosis Assist</p>
             <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.65rem", margin: 0 }}>Evidence-based differential diagnoses</p>
           </div>
         </div>
@@ -576,7 +576,7 @@ export function DiagnosisAssist({ patient, symptoms = [], onDiagnosisSelect }) {
             <div style={{ padding: "18px", display: "flex", flexDirection: "column", gap: 14 }}>
 
               {/* Primary diagnosis */}
-              <div style={{ background: "linear-gradient(135deg, #4c1d9510, #7c3aed08)", borderRadius: 16, padding: "14px 16px", border: "1px solid rgba(124,58,237,0.15)" }}>
+              <div style={{ background: "#4c1d9510", borderRadius: 16, padding: "14px 16px", border: "1px solid rgba(124,58,237,0.15)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                   <div>
                     <span style={{ fontSize: "0.6rem", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.08em" }}>Primary Diagnosis</span>
@@ -592,7 +592,7 @@ export function DiagnosisAssist({ patient, symptoms = [], onDiagnosisSelect }) {
                 </div>
                 {onDiagnosisSelect && (
                   <button onClick={() => onDiagnosisSelect(result.primaryDiagnosis?.name)}
-                    style={{ marginTop: 10, padding: "7px 16px", borderRadius: 9, background: "linear-gradient(135deg,#7c3aed,#a78bfa)", color: "white", fontWeight: 700, fontSize: "0.72rem", border: "none", cursor: "pointer", fontFamily: FF }}>
+                    style={{ marginTop: 10, padding: "7px 16px", borderRadius: 9, background: "#7c3aed", color: "white", fontWeight: 700, fontSize: "0.72rem", border: "none", cursor: "pointer", fontFamily: FF }}>
                     Use This Diagnosis →
                   </button>
                 )}

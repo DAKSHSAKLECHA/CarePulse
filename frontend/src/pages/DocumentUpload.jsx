@@ -71,7 +71,7 @@ export default function DocumentUpload() {
     fontSize: "0.875rem",
     color: "#0d1b2a",
     outline: "none",
-    fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+    fontFamily: "'Segoe UI', Arial, sans-serif",
     boxSizing: "border-box",
   };
 
@@ -79,8 +79,8 @@ export default function DocumentUpload() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(160deg, #f0f9f7 0%, #ffffff 60%, #eef4fb 100%)",
-        fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+        background: "#f7f9fa",
+        fontFamily: "'Segoe UI', Arial, sans-serif",
         paddingTop: "6rem",
         paddingBottom: "4rem",
       }}
@@ -90,17 +90,17 @@ export default function DocumentUpload() {
           <h1 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, color: "#0d1b2a", letterSpacing: "-0.03em", margin: 0 }}>
             Medical Records
           </h1>
-          <p style={{ color: "#64748b", marginTop: 6 }}>Upload and manage your health documents securely.</p>
+          <p style={{ color: "#64748b", marginTop: 6 }}>Keep your prescriptions, reports and other health documents together.</p>
         </div>
 
         {/* Upload Card */}
         <div
           style={{
             background: "white",
-            borderRadius: 20,
+            borderRadius: 12,
             padding: "2rem",
             border: "1px solid #e8edf2",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+            boxShadow: "none",
             marginBottom: 28,
           }}
         >
@@ -140,14 +140,14 @@ export default function DocumentUpload() {
               width: "100%",
               padding: "13px",
               borderRadius: 12,
-              background: "linear-gradient(135deg, #0a7e6e, #0d9488)",
+              background: "#0a7e6e",
               color: "white",
               fontWeight: 700,
               fontSize: "0.9rem",
               border: "none",
               cursor: loading ? "not-allowed" : "pointer",
-              fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
-              boxShadow: "0 6px 20px rgba(10,126,110,0.25)",
+              fontFamily: "'Segoe UI', Arial, sans-serif",
+              boxShadow: "none",
               opacity: loading ? 0.7 : 1,
               transition: "opacity 0.2s",
             }}
@@ -167,7 +167,7 @@ export default function DocumentUpload() {
             <button type="button" onClick={fetchPrescriptions}>Retry</button>
           </div>
         ) : prescriptions.length === 0 ? (
-          <div style={{ background: "white", borderRadius: 20, padding: "3.5rem", textAlign: "center", border: "2px dashed #e2e8f0", color: "#94a3b8" }}>
+          <div style={{ background: "white", borderRadius: 12, padding: "3.5rem", textAlign: "center", border: "2px dashed #e2e8f0", color: "#94a3b8" }}>
             <div style={{ fontSize: "2.5rem", marginBottom: 10 }}>📂</div>
             No documents uploaded yet.
           </div>
@@ -181,7 +181,7 @@ export default function DocumentUpload() {
                   borderRadius: 16,
                   padding: "1.1rem 1.4rem",
                   border: "1px solid #e8edf2",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                  boxShadow: "none",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
