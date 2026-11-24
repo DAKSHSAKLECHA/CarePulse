@@ -258,24 +258,7 @@ function OverviewTab({ appointments, stats, setTab }) {
         </div>
       </div>
 
-      {/* Quick action tiles */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
-        {[
-          { tab: "appointments", icon: "📅", title: "Appointments",  desc: "Manage all bookings",     color: INDIGO    },
-          { tab: "patients",     icon: "👥", title: "My Patients",   desc: "View patient history",    color: TEAL      },
-          { tab: "prescription", icon: "✍️", title: "Write Rx",      desc: "Digital prescriptions",   color: "#7c3aed" },
-          { tab: "analytics",    icon: "📊", title: "Analytics",     desc: "Charts & insights",       color: "#b45309" },
-        ].map((a, i) => (
-          <motion.div key={i} whileHover={{ y: -4, boxShadow: "none" }}
-            onClick={() => setTab(a.tab)}
-            style={{ ...card, padding: "1.2rem", cursor: "pointer", transition: "all 0.25s" }}>
-            <div style={{ fontSize: "1.4rem", marginBottom: 7 }}>{a.icon}</div>
-            <p style={{ fontWeight: 700, color: NAVY, margin: "0 0 3px", fontSize: "0.85rem" }}>{a.title}</p>
-            <p style={{ color: "#94a3b8", fontSize: "0.72rem", margin: 0 }}>{a.desc}</p>
-            <div style={{ marginTop: 9, display: "flex", alignItems: "center", gap: 3, color: a.color, fontSize: "0.7rem", fontWeight: 700 }}>Open <ChevronRight size={10} /></div>
-          </motion.div>
-        ))}
-      </div>
+
     </div>
   );
 }
@@ -1036,9 +1019,9 @@ export default function DoctorDashboard() {
         {/* Tab Content */}
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.17 }}>
-            {tab === "overview"     && <> <OverviewTab     appointments={appointments} stats={stats} setTab={setTab} />  <PatientRiskPanel patients={patients} /> </>}
+            {tab === "overview"     && <OverviewTab appointments={appointments} stats={stats} setTab={setTab} />}
             {tab === "appointments" && <AppointmentsTab appointments={appointments} onUpdate={handleApptUpdate} loading={loading} />}
-            {tab === "patients"     && <PatientsTab     patients={patients} appointments={appointments} loading={loading} />}
+            {tab === "patients"     && <><PatientsTab patients={patients} appointments={appointments} loading={loading} />{!loading && patients.length > 0 && <PatientRiskPanel patients={patients} />}</>}
             {tab === "prescription" && <PrescriptionTab patients={patients} />}
             {tab === "schedule"     && <ScheduleTab     appointments={appointments} />}
             {tab === "analytics"    && <AnalyticsTab    appointments={appointments} stats={stats} />}

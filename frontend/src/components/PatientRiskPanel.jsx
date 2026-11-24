@@ -164,7 +164,7 @@ function PatientRiskCard({ patient, symptoms, index }) {
   );
 }
 
-export default function PatientRiskPanel({ patients }) {
+export default function PatientRiskPanel({ patients = [] }) {
   const token   = localStorage.getItem("token");
   const headers = { Authorization: `Bearer ${token}` };
 
@@ -177,6 +177,7 @@ export default function PatientRiskPanel({ patients }) {
 
 
   const runAnalysis = async () => {
+    if (analyzing || patients.length === 0) return;
     setAnalyzing(true);
     setLoading(true);
     setFetchError("");
@@ -185,7 +186,8 @@ export default function PatientRiskPanel({ patients }) {
       const res = await axios.get("/api/symptoms", { headers });
 
 
-      setAllSymptoms(res.data || []);
+      if (!Array.isArray(res.data)) throw new Error("Invalid symptom records response");
+      setAllSymptoms(res.data);
       setActive(true);
     } catch(err) {
       // Symptoms endpoint might need doctor auth — fallback to empty
@@ -202,6 +204,8 @@ export default function PatientRiskPanel({ patients }) {
   // Only assess top 5 patients to manage API costs
   const patientsToAssess = patients.slice(0, 5);
 
+  if (patientsToAssess.length === 0) return null;
+
   if (!active) {
     return (
       <div style={{ ...card, padding: "1.6rem", marginTop: 20 }}>
@@ -212,15 +216,14 @@ export default function PatientRiskPanel({ patients }) {
               <ShieldAlert size={18} color="#dc2626" />
             </div>
             <div>
-              <p style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "0.95rem" }}>AI Patient Risk Assessment</p>
-              <p style={{ color: "#94a3b8", fontSize: "0.75rem", margin: 0 }}>AI-assisted symptom review, not a validated clinical risk score.</p>
-              {fetchError && <p role="alert" style={{color:"#b45309"}}>{fetchError}</p>}
+              <p style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "0.95rem" }}>Patient symptom review</p>
+              <p style={{ color: "#94a3b8", fontSize: "0.75rem", margin: 0 }}>Review saved symptoms with AI assistance. Clinical judgement is required.</p>
             </div>
           </div>
           <button onClick={runAnalysis} disabled={analyzing}
-            style={{ padding: "10px 20px", borderRadius: 12, background: "#dc2626", color: "white", fontWeight: 700, fontSize: "0.82rem", border: "none", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 6, boxShadow: "none", opacity: analyzing ? 0.7 : 1 }}>
+            style={{ padding: "10px 20px", borderRadius: 12, background: "#0a7367", color: "white", fontWeight: 700, fontSize: "0.82rem", border: "none", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 6, boxShadow: "none", opacity: analyzing ? 0.7 : 1 }}>
             <ShieldAlert size={14} />
-            {analyzing ? "Running…" : `Assess ${patientsToAssess.length} Patients`}
+            {analyzing ? "Running…" : `Review ${patientsToAssess.length} ${patientsToAssess.length === 1 ? "patient" : "patients"}`}
           </button>
         </div>
       </div>
@@ -232,11 +235,11 @@ export default function PatientRiskPanel({ patients }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem", flexWrap: "wrap", gap: 10 }}>
         <div>
           <h3 style={{ fontWeight: 800, color: NAVY, margin: 0, fontSize: "0.95rem", display: "flex", alignItems: "center", gap: 7 }}>
-            <ShieldAlert size={16} color="#dc2626" /> AI Risk Assessment
+            <ShieldAlert size={16} color="#dc2626" /> Patient symptom review
           </h3>
-          <p style={{ color: "#94a3b8", fontSize: "0.72rem", margin: "2px 0 0" }}>AI-Assisted patient risk analysis</p>
+          <p style={{ color: "#94a3b8", fontSize: "0.72rem", margin: "2px 0 0" }}>AI-assisted review of saved symptom records</p>
         </div>
-        <button onClick={() => { setRefreshKey(k => k + 1); setActive(false); runAnalysis(); }}
+        <button disabled={analyzing} onClick={() => { setRefreshKey(k => k + 1); setActive(false); runAnalysis(); }}
           style={{ padding: "6px 14px", borderRadius: 9, background: "#f1f5f9", border: "none", color: "#64748b", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer", fontFamily: FF, display: "flex", alignItems: "center", gap: 5 }}>
           <RefreshCw size={12} /> Refresh
         </button>
